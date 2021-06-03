@@ -64,3 +64,10 @@ Beispielsweise mit dem Tool: MongoDB Compass
 
 ### mongo-seeder
 Zuständig für die initiale Befüllung der Datenbank (MongoDB) mit Daten.
+
+### Extern:
+
+Gitignore:
+
+- https://github.com/toptal/gitignore/blob/master/templates/JupyterNotebooks.gitignore
+- https://gist.github.com/takekazuomi/10955889
