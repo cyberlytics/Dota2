@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Backend.Data.Repositories;
+using Backend.Domain.Repositories;
+using Backend.Domain.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -31,6 +34,10 @@ namespace Backend.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "Backend.API", Version = "v1"});
             });
+            
+            //Dependency Injections
+            services.AddScoped<IMatchesRepository, MatchesRepository>();
+            services.AddScoped<IMatchesService, MatchesService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
