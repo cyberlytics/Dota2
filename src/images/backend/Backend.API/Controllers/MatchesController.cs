@@ -18,14 +18,21 @@ namespace Backend.API.Controllers
         {
             _matchesService = matchesService;
         }
-        
+
         [HttpGet]
         [Route("request")]
         public async Task<Match> RequestMatch(long id)
         {
             return await _matchesService.RequestMatch(id);
         }
-        
+
+        [HttpGet]
+        [Route("parsed")]
+        public async Task<List<Match>> RequestParsedMatches()
+        {
+            return await _matchesService.RequestParsedMatches();
+        }
+
         [HttpGet]
         [Route("all")]
         public List<Match> GetAllMatches()
