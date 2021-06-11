@@ -1,6 +1,4 @@
-FROM balenalib/raspberrypi4-64-python:3.7.6-buster
-
-RUN install_packages tini libblas-dev liblapack-dev libatlas-base-dev gfortran pkg-config python3-pandas python3-numpy python3-pymongo python3-ipykernel jupyter jupyter-notebook
+FROM jupyter/scipy-notebook:python-3.9.2
 
 RUN pip install --no-cache-dir jupyter_kernel_gateway
 
