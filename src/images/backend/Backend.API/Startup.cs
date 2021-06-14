@@ -38,6 +38,7 @@ namespace Backend.API
             //Dependency Injections
             services.AddScoped<IMatchesRepository, MatchesRepository>();
             services.AddScoped<IMatchesService, MatchesService>();
+            services.AddScoped<IOpenDotaService, OpenDotaService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

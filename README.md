@@ -51,7 +51,6 @@ gesendet.
 
 ### csharp-backend
 
-- http://localhost/GameData
 - http://localhost/swagger/index.html
 
 ### MongoDB

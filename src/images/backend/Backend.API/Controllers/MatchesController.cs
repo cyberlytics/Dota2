@@ -1,16 +1,15 @@
+﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Backend.Domain.Models;
 using Backend.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace Backend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class MatchesController
+    public class MatchesController : ControllerBase
     {
         private readonly IMatchesService _matchesService;
 
@@ -20,24 +19,17 @@ namespace Backend.API.Controllers
         }
 
         [HttpGet]
-        [Route("request")]
-        public async Task<Match> RequestMatch(long id)
+        [Route("single")]
+        public async Task<MatchDto> GetMatch(long id)
         {
-            return await _matchesService.RequestMatch(id);
+            return _matchesService.FindMatch(id);
         }
-
+        
         [HttpGet]
-        [Route("parsed")]
-        public async Task<List<Match>> RequestParsedMatches()
+        [Route("list")]
+        public async Task<List<MatchDto>> GetMatches(int startId, int cnt)
         {
-            return await _matchesService.RequestParsedMatches();
-        }
-
-        [HttpGet]
-        [Route("all")]
-        public List<Match> GetAllMatches()
-        {
-            return _matchesService.GetAllMatches();
+            return _matchesService.RequestMatches(startId, cnt);
         }
     }
 }

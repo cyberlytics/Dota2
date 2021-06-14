@@ -20,7 +20,7 @@ namespace Backend.Data.Repositories
             OpenRepository();
         }
         
-        public void Add(Match match)
+        public void AddMatch(Match match)
         {
             if (this.repository.Find(x => x.match_id == match.match_id) == null)
             {
@@ -29,9 +29,24 @@ namespace Backend.Data.Repositories
             }
         }
 
-        public List<Match> GetAll()
+        public Match FindMatch(long id)
         {
-            return repository;
+            throw new NotImplementedException();
+        }
+
+        public List<Match> RequestMatches(int startId, int cnt)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<Match> FindUserMatches(long userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int MaxId()
+        {
+            throw new NotImplementedException();
         }
 
         private void OpenRepository()

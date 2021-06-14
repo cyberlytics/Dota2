@@ -6,7 +6,10 @@ namespace Backend.Domain.Repositories
 {
     public interface IMatchesRepository
     {
-        void Add(Match match);
-        List<Match> GetAll();
+        void AddMatch(Match match);
+        Match FindMatch(long id);
+        List<Match> RequestMatches(int startId, int cnt);
+        List<Match> FindUserMatches(long userId);
+        int MaxId();
     }
 }
