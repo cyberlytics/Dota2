@@ -8,26 +8,25 @@ namespace Backend.Domain.Models
         public MatchDto(Match match)
         {
             radiant_win = match.radiant_win;
-            players = new List<Player>();
+            players = new List<MatchDtoPlayer>();
 
             foreach (var matchPlayer in match.players)
             {
-                players.Add(new Player()
+                players.Add(new MatchDtoPlayer()
                 {
                     pings = matchPlayer.pings,
-                    //TODO: Uncomment after Match Model Update
-                    //kills = matchPlayer.kills,
-                    //deaths = matchPlayer.deaths,
-                    //assists = matchPlayer.assists,
-                    //win = matchPlayer.win
+                    kills = matchPlayer.kills,
+                    deaths = matchPlayer.deaths,
+                    assists = matchPlayer.assists,
+                    win = matchPlayer.win != 0
                 });
             }
         }
         
         public bool radiant_win { get; set; }
-        public List<Player> players { get; set; }
+        public List<MatchDtoPlayer> players { get; set; }
 
-        public class Player
+        public class MatchDtoPlayer
         {
             public int pings { get; set; }
             public int kills { get; set; }

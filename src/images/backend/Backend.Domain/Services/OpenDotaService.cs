@@ -22,7 +22,7 @@ namespace Backend.Domain.Services
 
         public async Task<Match> RequestMatch(long id)
         {
-            Match match = _repository.FindMatch(id);
+            Match match = null;//_repository.FindMatch(id);
             if (match == null && id > 0)
             {
                 HttpClient httpClient = new HttpClient();
