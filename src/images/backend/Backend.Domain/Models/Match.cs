@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System.Collections.Generic;
 
 #pragma warning disable IDE1006 // Benennungsstile
 
 namespace Backend.Domain.Models
 {
+    [BsonIgnoreExtraElements]
     public class Match
     {
         ///<summary>

@@ -74,6 +74,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+      - MONGODB_CONNECTION_STRING=mongodb://mongodb:27017
     depends_on:
       - jupyter-server
       # - mongodb-seeder
