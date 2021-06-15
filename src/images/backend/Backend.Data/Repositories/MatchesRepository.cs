@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Backend.Domain.Models;
@@ -11,15 +12,14 @@ namespace Backend.Data.Repositories
 {
     public class MatchesRepository : IMatchesRepository
     {
-
         private List<Match> repository;
         private static string filePath = @"../Backend.Data/Database/matches.json";
-        
+
         public MatchesRepository()
         {
             OpenRepository();
         }
-        
+
         public void AddMatch(Match match)
         {
             if (this.repository.Find(x => x.match_id == match.match_id) == null)
@@ -27,6 +27,24 @@ namespace Backend.Data.Repositories
                 this.repository.Add(match);
                 SaveRepository();
             }
+        }
+
+        public void AddMatches(List<Match> matches)
+        {
+            foreach (var match in matches)
+            {
+                if (this.repository.Find(x => x.match_id == match.match_id) == null)
+                {
+                    this.repository.Add(match);
+                }
+            }
+
+            SaveRepository();
+        }
+
+        public bool ContainsMatch(long id)
+        {
+            return repository.Where(x => x.match_id == id).Any();
         }
 
         public Match FindMatch(long id)
@@ -58,7 +76,7 @@ namespace Backend.Data.Repositories
                     using (StreamReader file = File.OpenText(filePath))
                     {
                         JsonSerializer serializer = new JsonSerializer();
-                        this.repository = (List<Match>) serializer.Deserialize(file, typeof(List<Match>));
+                        this.repository = (List<Match>)serializer.Deserialize(file, typeof(List<Match>));
                     }
                 }
                 catch (Exception e)

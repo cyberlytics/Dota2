@@ -7,9 +7,17 @@ namespace Backend.Domain.Repositories
     public interface IMatchesRepository
     {
         void AddMatch(Match match);
+
+        void AddMatches(List<Match> matches);
+
+        bool ContainsMatch(long id);
+
         Match FindMatch(long id);
+
         List<Match> RequestMatches(int startId, int cnt);
+
         List<Match> FindUserMatches(long userId);
+
         int MaxId();
     }
 }

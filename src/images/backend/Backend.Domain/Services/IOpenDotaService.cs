@@ -6,6 +6,8 @@ namespace Backend.Domain.Services
 {
     public interface IOpenDotaService
     {
-        Task<Match> RequestMatch(long id);
+        Task<string> FetchNewMatches(int number = 1);
+
+        Task<string> FetchNewMatchesAndParse(int number = 1);
     }
 }

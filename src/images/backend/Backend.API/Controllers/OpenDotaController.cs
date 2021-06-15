@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace Backend.API.Controllers
 {
     //Controller für alle Anfragen an die OpenDota API
-    
+
     [ApiController]
     [Route("api/[controller]")]
     public class OpenDotaController : ControllerBase
@@ -22,10 +22,17 @@ namespace Backend.API.Controllers
         }
 
         [HttpGet]
-        [Route("request")]
-        public async Task<Match> RequestMatch(long id)
+        [Route("fetch")]
+        public async Task<string> FetchNewMatches(int number = 1)
         {
-            return await _openDotaService.RequestMatch(id);
+            return await _openDotaService.FetchNewMatches(number);
+        }
+
+        [HttpGet]
+        [Route("parse")]
+        public async Task<string> ParseNewMatches(int number = 1)
+        {
+            return await _openDotaService.FetchNewMatchesAndParse(number);
         }
     }
 }
