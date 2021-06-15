@@ -10,16 +10,19 @@ namespace Backend.Domain.Models
             radiant_win = match.radiant_win;
             players = new List<MatchDtoPlayer>();
 
-            foreach (var matchPlayer in match.players)
+            if (match.players != null)
             {
-                players.Add(new MatchDtoPlayer()
+                foreach (var matchPlayer in match.players)
                 {
-                    pings = matchPlayer.pings,
-                    kills = matchPlayer.kills,
-                    deaths = matchPlayer.deaths,
-                    assists = matchPlayer.assists,
-                    win = matchPlayer.win != 0
-                });
+                    players.Add(new MatchDtoPlayer()
+                    {
+                        pings = matchPlayer.pings,
+                        kills = matchPlayer.kills,
+                        deaths = matchPlayer.deaths,
+                        assists = matchPlayer.assists,
+                        win = matchPlayer.win != 0
+                    });
+                }
             }
         }
         
