@@ -4,7 +4,7 @@ using Backend.Domain.Models;
 
 namespace Backend.Domain.Repositories
 {
-    public interface IMatchesRepository
+    public interface IMatchesLocalRepository
     {
         void AddMatch(Match match);
 

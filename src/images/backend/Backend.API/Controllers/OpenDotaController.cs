@@ -29,10 +29,17 @@ namespace Backend.API.Controllers
         }
 
         [HttpGet]
-        [Route("parse")]
-        public async Task<string> ParseNewMatches(int number = 1)
+        [Route("fetch and parse")]
+        public async Task<string> FetchNewMatchesAndParse(int number = 1)
         {
             return await _openDotaService.FetchNewMatchesAndParse(number);
+        }
+
+        [HttpGet]
+        [Route("fetch for player")]
+        public async Task<string> FetchAllMatchesForPlayer(long steam32id, int limit = 100)
+        {
+            return await _openDotaService.FetchAllMatchesForPlayer(steam32id, limit);
         }
     }
 }

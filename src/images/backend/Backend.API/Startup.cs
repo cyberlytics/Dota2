@@ -36,7 +36,7 @@ namespace Backend.API
             });
 
             //Dependency Injections
-            services.AddScoped<IMatchesRepository, MatchesRepository>();
+            services.AddScoped<IMatchesLocalRepository, MatchesLocalRepository>();
             services.AddScoped<IMatchesService, MatchesService>();
             services.AddScoped<IOpenDotaService, OpenDotaService>();
             services.AddScoped<IOpenDotaCallerService, OpenDotaCallerService>();

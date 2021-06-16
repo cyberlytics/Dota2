@@ -9,5 +9,7 @@ namespace Backend.Domain.Services
         Task<string> FetchNewMatches(int number = 1);
 
         Task<string> FetchNewMatchesAndParse(int number = 1);
+
+        Task<string> FetchAllMatchesForPlayer(long steam32Id, int limit = 100);
     }
 }

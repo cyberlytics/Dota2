@@ -10,12 +10,12 @@ using Newtonsoft.Json;
 
 namespace Backend.Data.Repositories
 {
-    public class MatchesRepository : IMatchesRepository
+    public class MatchesLocalRepository : IMatchesLocalRepository
     {
         private List<Match> repository;
         private static string filePath = @"../Backend.Data/Database/matches.json";
 
-        public MatchesRepository()
+        public MatchesLocalRepository()
         {
             OpenRepository();
         }

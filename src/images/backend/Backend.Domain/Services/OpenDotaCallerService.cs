@@ -15,6 +15,7 @@ namespace Backend.Domain.Services
 
         public OpenDotaCallerService()
         {
+            //Ratelimiter auf 60 Operationen pro Minute
             var handler = TimeLimiter
                                 .GetFromMaxCountByInterval(60, TimeSpan.FromMinutes(1))
                                 .AsDelegatingHandler();

@@ -6,9 +6,9 @@ namespace Backend.Domain.Services
 {
     public class MatchesService : IMatchesService
     {
-        private readonly IMatchesRepository _matchesRepository;
+        private readonly IMatchesLocalRepository _matchesRepository;
 
-        public MatchesService(IMatchesRepository matchesRepository)
+        public MatchesService(IMatchesLocalRepository matchesRepository)
         {
             _matchesRepository = matchesRepository;
         }

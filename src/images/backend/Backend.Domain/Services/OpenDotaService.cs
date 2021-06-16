@@ -11,11 +11,11 @@ namespace Backend.Domain.Services
 {
     public class OpenDotaService : IOpenDotaService
     {
-        private readonly IMatchesRepository _repository;
+        private readonly IMatchesLocalRepository _repository;
         private readonly IOpenDotaCallerService _openDotaApi;
         private const string apiUrlRequest = "https://api.opendota.com/api/request/";
 
-        public OpenDotaService(IMatchesRepository repository, IOpenDotaCallerService openDotaApi)
+        public OpenDotaService(IMatchesLocalRepository repository, IOpenDotaCallerService openDotaApi)
         {
             _repository = repository;
             _openDotaApi = openDotaApi;
@@ -23,7 +23,7 @@ namespace Backend.Domain.Services
 
         public async Task<string> FetchNewMatches(int number = 1)
         {
-            //TODO: Für Entwicklung. Kann später entfernt werden
+            //TODO: Für Debug. Kann später entfernt werden
             int cntPublic = 0;
             int cntDouble = 0;
             int cntRequest = 0;
@@ -63,13 +63,13 @@ namespace Backend.Domain.Services
             //Alle neuen Matches speichern
             _repository.AddMatches(validMatches);
 
-            //TODO: Returnvalue für Entwicklung. Kann später entfernt werden
+            //TODO: Returnvalue für Debug. Kann später entfernt werden
             return $"New Matches: {validMatches.Count} | Public Ids: {cntPublic} | Requested Matches: {cntRequest} | Doppelte Ids: {cntDouble} | Nullwerte: {cntNull} | Time: {DateTime.Now - dtStart}";
         }
 
         public async Task<string> FetchNewMatchesAndParse(int number = 1)
         {
-            //TODO: Returnvalue für Entwicklung. Kann später entfernt werden
+            //TODO: Returnvalue für Debug. Kann später entfernt werden
             int cntPublic = 0;
             int cntDouble = 0;
             int cntRequest = 0;
@@ -121,8 +121,41 @@ namespace Backend.Domain.Services
             //Alle neuen Matches speichern
             _repository.AddMatches(validMatches);
 
-            //TODO: Returnvalue für Entwicklung. Kann später entfernt werden
+            //TODO: Returnvalue für Debug. Kann später entfernt werden
             return $"New Matches: {validMatches.Count} | Public Ids: {cntPublic} | Parse Requests: {cntParsed} | Requested Matches: {cntRequest} | Doppelte Ids: {cntDouble} | Nullwerte: {cntNull} | Time: {DateTime.Now - dtStart}";
+        }
+
+        public async Task<string> FetchAllMatchesForPlayer(long steam32Id, int limit = 100)
+        {
+            string apiUrlPlayerMatches = $"https://api.opendota.com/api/players/{steam32Id}/matches?lobby_type=7&game_mode=22";
+            if (limit > 0)
+            {
+                apiUrlPlayerMatches = $"https://api.opendota.com/api/players/{steam32Id}/matches?lobby_type=7&game_mode=22&limit={limit}";
+            }
+
+            List<Match> playerMatches = new();
+            List<Match> validMatches = new();
+
+            //Hole alle Matches des Spielers
+            var content = await _openDotaApi.GetValue(apiUrlPlayerMatches);
+            if (!string.IsNullOrEmpty(content))
+            {
+                playerMatches = JsonConvert.DeserializeObject<List<Match>>(content, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+            }
+
+            //Filter die Matches nach Parsed, Lobbytype und Gamemode
+            playerMatches.RemoveAll(x => x.version == -1 || x.lobby_type != 7 || x.game_mode != 22);
+
+            //Hole gesamte Matchdata für alle gültigen Matches
+            var ids = playerMatches.Select(x => x.match_id).ToList();
+            var getmatches = await FetchMatchData(ids);
+            validMatches.AddRange(getmatches);
+            //validMatches.AddRange(await FetchMatchData(playerMatches.Select(x => x.match_id).ToList()));
+
+            //TODO: Spiele eines Spielers (getrennt) abspeichern? Verfälschung der Random Public Stats?
+            //_repository.AddMatches(validMatches);
+
+            return $"{validMatches.Count} Matchdaten gespeichert.";
         }
 
         private async Task<List<Match>> FetchPublicMatches()
@@ -148,6 +181,25 @@ namespace Backend.Domain.Services
                 if (!string.IsNullOrEmpty(content))
                 {
                     ret = JsonConvert.DeserializeObject<Match>(content, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+                }
+            }
+
+            return ret;
+        }
+
+        private async Task<List<Match>> FetchMatchData(List<long> ids)
+        {
+            string apiUrlMatches = "https://api.opendota.com/api/matches/";
+            List<Match> ret = new();
+            foreach (var id in ids)
+            {
+                if (id > 0)
+                {
+                    var content = await _openDotaApi.GetValue(apiUrlMatches + id);
+                    if (!string.IsNullOrEmpty(content))
+                    {
+                        ret.Add(JsonConvert.DeserializeObject<Match>(content, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+                    }
                 }
             }
 
