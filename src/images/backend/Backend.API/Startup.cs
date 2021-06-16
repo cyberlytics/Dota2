@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Backend.Data.Repositories;
 using Backend.Domain.Models;
 using Backend.Domain.Repositories;
 using Backend.Domain.Services;
@@ -44,8 +43,6 @@ namespace Backend.API
             });
 
             //Dependency Injections
-            services.AddScoped<IMatchesLocalRepository, MatchesLocalRepository>();
-            services.AddScoped<IMatchesService, MatchesService>();
             services.AddScoped<IOpenDotaService, OpenDotaService>();
             services.AddScoped<IOpenDotaCallerService, OpenDotaCallerService>();
             services.AddScoped<IMatchService, MatchService>();
@@ -53,7 +50,7 @@ namespace Backend.API
             // TODO Start
             // Nach https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mongo-app?view=aspnetcore-5.0&tabs=visual-studio#add-a-crud-operations-service
             // soll die MongoDB als Singleton initialisiert werden.
-            // Das führt aber bei mir zu einem Fehler ... vll. weiß ja jemand aus der Zukunft eine Lösung dazu.
+            // Das fï¿½hrt aber bei mir zu einem Fehler ... vll. weiï¿½ ja jemand aus der Zukunft eine Lï¿½sung dazu.
             //
             //services.AddScoped<IMatchRepository, MatchRepository>();
             //services.AddSingleton<MatchRepository>();

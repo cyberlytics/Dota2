@@ -11,11 +11,11 @@ namespace Backend.Domain.Services
 {
     public class OpenDotaService : IOpenDotaService
     {
-        private readonly IMatchesLocalRepository _repository;
+        private readonly IMatchRepository _repository;
         private readonly IOpenDotaCallerService _openDotaApi;
         private const string apiUrlRequest = "https://api.opendota.com/api/request/";
 
-        public OpenDotaService(IMatchesLocalRepository repository, IOpenDotaCallerService openDotaApi)
+        public OpenDotaService(IMatchRepository repository, IOpenDotaCallerService openDotaApi)
         {
             _repository = repository;
             _openDotaApi = openDotaApi;
@@ -39,11 +39,10 @@ namespace Backend.Domain.Services
                 var publicMatches = await FetchPublicMatches();
 
                 cntPublic += publicMatches.Count;
-                cntDouble += publicMatches.Where(x => _repository.ContainsMatch(x.match_id)).Count();
-
+                
                 //Filter nach Ranked && All Draft
                 List<Match> getMatches = new();
-                getMatches.AddRange(publicMatches.Where(x => x.lobby_type == 7 && x.game_mode == 22 && !_repository.ContainsMatch(x.match_id)));
+                getMatches.AddRange(publicMatches.Where(x => x.lobby_type == 7 && x.game_mode == 22 && _repository.Get(x.match_id) == null));
 
                 //Komplette Matchdaten für alle gültigen Matches laden
                 foreach (var getMatch in getMatches)
@@ -61,7 +60,10 @@ namespace Backend.Domain.Services
             }
 
             //Alle neuen Matches speichern
-            _repository.AddMatches(validMatches);
+            foreach (var match in validMatches)
+            {
+                _repository.Create(match);
+            }
 
             //TODO: Returnvalue für Debug. Kann später entfernt werden
             return $"New Matches: {validMatches.Count} | Public Ids: {cntPublic} | Requested Matches: {cntRequest} | Doppelte Ids: {cntDouble} | Nullwerte: {cntNull} | Time: {DateTime.Now - dtStart}";
@@ -86,11 +88,10 @@ namespace Backend.Domain.Services
                 var publicMatches = await FetchPublicMatches();
 
                 cntPublic += publicMatches.Count;
-                cntDouble += publicMatches.Where(x => _repository.ContainsMatch(x.match_id)).Count();
 
                 //Filter nach Ranked && All Draft
                 List<Match> getMatches = new();
-                getMatches.AddRange(publicMatches.Where(x => x.lobby_type == 7 && x.game_mode == 22 && !_repository.ContainsMatch(x.match_id)));
+                getMatches.AddRange(publicMatches.Where(x => x.lobby_type == 7 && x.game_mode == 22 && _repository.Get(x.match_id) == null));
 
                 //Fordere Parse für alle IDs an
                 foreach (var getMatch in getMatches)
@@ -119,7 +120,10 @@ namespace Backend.Domain.Services
             }
 
             //Alle neuen Matches speichern
-            _repository.AddMatches(validMatches);
+            foreach (var match in validMatches)
+            {
+                _repository.Create(match);
+            }
 
             //TODO: Returnvalue für Debug. Kann später entfernt werden
             return $"New Matches: {validMatches.Count} | Public Ids: {cntPublic} | Parse Requests: {cntParsed} | Requested Matches: {cntRequest} | Doppelte Ids: {cntDouble} | Nullwerte: {cntNull} | Time: {DateTime.Now - dtStart}";
@@ -142,10 +146,10 @@ namespace Backend.Domain.Services
             {
                 playerMatches = JsonConvert.DeserializeObject<List<Match>>(content, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
             }
-
+            
             //Filter die Matches nach Parsed, Lobbytype und Gamemode
             playerMatches.RemoveAll(x => x.version == -1 || x.lobby_type != 7 || x.game_mode != 22);
-
+            
             //Hole gesamte Matchdata für alle gültigen Matches
             var ids = playerMatches.Select(x => x.match_id).ToList();
             var getmatches = await FetchMatchData(ids);
@@ -153,8 +157,11 @@ namespace Backend.Domain.Services
             //validMatches.AddRange(await FetchMatchData(playerMatches.Select(x => x.match_id).ToList()));
 
             //TODO: Spiele eines Spielers (getrennt) abspeichern? Verfälschung der Random Public Stats?
-            //_repository.AddMatches(validMatches);
-
+            foreach (var match in validMatches)
+            {
+                _repository.Create(match);
+            }
+            
             return $"{validMatches.Count} Matchdaten gespeichert.";
         }
 
