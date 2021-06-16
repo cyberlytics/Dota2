@@ -1,5 +1,8 @@
 # BDCC Projekt Modularbeit
 
+# Architektur
+![alt Architektur](res/images/architecture.png)
+
 # Zeitschätzung
 1. Setup 20% 1W
 - Anlegen des Projektes (ASP.NET Core Backend, Datenbank) 80%

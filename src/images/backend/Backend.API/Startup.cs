@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Backend.Data.Repositories;
+using Backend.Domain.Models;
 using Backend.Domain.Repositories;
 using Backend.Domain.Services;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 namespace Backend.API
@@ -29,6 +31,12 @@ namespace Backend.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // setup database connection configuration
+            services.Configure<MatchstoreDatabaseSettings>(
+                Configuration.GetSection(nameof(MatchstoreDatabaseSettings)));
+            services.AddSingleton<IMatchstoreDatabaseSettings>(sp =>
+                sp.GetRequiredService<IOptions<MatchstoreDatabaseSettings>>().Value);
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -40,6 +48,18 @@ namespace Backend.API
             services.AddScoped<IMatchesService, MatchesService>();
             services.AddScoped<IOpenDotaService, OpenDotaService>();
             services.AddScoped<IOpenDotaCallerService, OpenDotaCallerService>();
+            services.AddScoped<IMatchService, MatchService>();
+
+            // TODO Start
+            // Nach https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mongo-app?view=aspnetcore-5.0&tabs=visual-studio#add-a-crud-operations-service
+            // soll die MongoDB als Singleton initialisiert werden.
+            // Das führt aber bei mir zu einem Fehler ... vll. weiß ja jemand aus der Zukunft eine Lösung dazu.
+            //
+            //services.AddScoped<IMatchRepository, MatchRepository>();
+            //services.AddSingleton<MatchRepository>();
+            //services.AddSingleton<IMatchRepository>(MatchRepository);
+            services.AddScoped<IMatchRepository, MatchRepository>();
+            // TODO End
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
