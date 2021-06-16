@@ -7,6 +7,7 @@ namespace Backend.Domain.Models
 
         public MatchDto(Match match)
         {
+            match_id = match.match_id;
             radiant_win = match.radiant_win;
             players = new List<MatchDtoPlayer>();
 
@@ -25,7 +26,8 @@ namespace Backend.Domain.Models
                 }
             }
         }
-        
+
+        public long match_id { get; set; }
         public bool radiant_win { get; set; }
         public List<MatchDtoPlayer> players { get; set; }
 

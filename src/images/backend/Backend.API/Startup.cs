@@ -55,7 +55,7 @@ namespace Backend.API
             //services.AddScoped<IMatchRepository, MatchRepository>();
             //services.AddSingleton<MatchRepository>();
             //services.AddSingleton<IMatchRepository>(MatchRepository);
-            services.AddScoped<IMatchRepository, MatchRepository>();
+            services.AddSingleton<IMatchRepository, MatchRepository>();
             // TODO End
         }
 
