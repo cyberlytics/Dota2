@@ -23,12 +23,12 @@ namespace Backend.Domain.Services
             _matches = database.GetCollection<Match>(settings.MatchesCollectionName);
         }
 
-        List<Match> IMatchRepository.Get()
+        public List<Match> Get()
         {
             return _matches.Find(m => true).ToList();
         }
 
-        Match IMatchRepository.Get(long id)
+        public Match Get(long id)
         {
             return _matches.Find<Match>(m => m.match_id == id).FirstOrDefault();
         }
