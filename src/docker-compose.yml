@@ -52,7 +52,7 @@ services:
       jupyter
       kernelgateway
       --ip=0.0.0.0
-      --KernelGatewayApp.seed_uri=/home/bdcc/notebooks/api/TestAPI.ipynb
+      --KernelGatewayApp.seed_uri=/home/bdcc/notebooks/api/interface.ipynb
       --KernelGatewayApp.api='kernel_gateway.notebook_http'
       --KernelGatewayApp.port=8898
       --KernelGatewayApp.allow_origin='*'
