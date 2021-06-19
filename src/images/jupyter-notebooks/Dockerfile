@@ -1,6 +1,6 @@
 FROM jupyter/scipy-notebook:python-3.9.2
 
-RUN pip install --no-cache-dir jupyter_kernel_gateway
+RUN pip install --no-cache-dir jupyter_kernel_gateway pymongo
 
 COPY . /home/bdcc/
 

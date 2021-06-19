@@ -46,7 +46,7 @@ namespace Backend.Domain.Services
 
         public void Remove(Match match)
         {
-            _matches.DeleteOne(m => m.match_id == match.match_id);
+            Remove(match.match_id);
         }
 
         public void Remove(long id)
