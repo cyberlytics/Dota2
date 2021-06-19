@@ -60,9 +60,19 @@ gesendet.
 
 Verbindung aufbauen mit:
 
+MongoDB-Backend
 - mongodb://127.0.0.1:27017
 
+MongoDB-KI
+- mongodb://127.0.0.1:27018
+
 Beispielsweise mit dem Tool: MongoDB Compass
+
+Export der Daten aus einer MongoDB Datenbank:
+```mongodump --host="127.0.0.1" --port=27017 --gzip --forceTableScan -d Data-KI -o ./seeds```
+
+Import der Daten in eine MongoDB (Automatisch mithilfe der mongo-seeder Images):
+```mongorestore --host 127.0.0.1 --drop --gzip --dir ./seeds```
 
 ### mongo-seeder
 Zuständig für die initiale Befüllung der Datenbank (MongoDB) mit Daten.

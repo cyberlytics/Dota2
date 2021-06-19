@@ -14,13 +14,35 @@ services:
       --replSet rs0
     logging:
       driver: none
+  
+  mongodb-ki:
+    image: mongo
+    container_name: mongodb-ki
+    hostname: mongodb-ki
+    ports:
+      - "27018:27017"
+    healthcheck:
+      test: test $$(echo "rs.initiate().ok || rs.status().ok" | mongo --quiet) -eq 1
+      interval: 10s
+      start_period: 30s
+    command:
+      --replSet rs0-ki
+    logging:
+      driver: none
 
-  # # mongodb-seeder:
-  # #   build:
-  # #     context: ./images/mongo-seeder
-  # #   restart: on-failure
-  # #   depends_on:
-  # #     - mongodb
+  mongodb-seeder:
+    build:
+      context: ./images/mongo-seeder
+    restart: on-failure
+    depends_on:
+      - mongodb
+
+  mongodb-seeder-ki:
+    build:
+      context: ./images/mongo-seeder-ki
+    restart: on-failure
+    depends_on:
+      - mongodb-ki
 
   jupyter-notebooks:   
     # Notebooks
@@ -35,7 +57,8 @@ services:
       --NotebookApp.token=''
       --allow-root
     environment:
-      - MONGODB_HOST=mongodb
+      - MONGODB_HOST=mongodb-ki
+      - MONGODB_PORT=27017
     ports:
       - "8888:8888"
     depends_on:
@@ -57,7 +80,8 @@ services:
       --KernelGatewayApp.port=8898
       --KernelGatewayApp.allow_origin='*'
     environment:
-      - MONGODB_HOST=mongodb
+      - MONGODB_HOST=mongodb-ki
+      - MONGODB_PORT=27017
     ports:
       - "8898:8898"
     depends_on:

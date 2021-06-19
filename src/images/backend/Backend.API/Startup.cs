@@ -42,21 +42,11 @@ namespace Backend.API
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Backend.API", Version = "v1" });
             });
 
-            //Dependency Injections
+            // Dependency Injections
             services.AddScoped<IOpenDotaService, OpenDotaService>();
             services.AddScoped<IOpenDotaCallerService, OpenDotaCallerService>();
-            services.AddScoped<IMatchService, MatchService>();
 
-            // TODO Start
-            // Nach https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mongo-app?view=aspnetcore-5.0&tabs=visual-studio#add-a-crud-operations-service
-            // soll die MongoDB als Singleton initialisiert werden.
-            // Das f�hrt aber bei mir zu einem Fehler ... vll. wei� ja jemand aus der Zukunft eine L�sung dazu.
-            //
-            //services.AddScoped<IMatchRepository, MatchRepository>();
-            //services.AddSingleton<MatchRepository>();
-            //services.AddSingleton<IMatchRepository>(MatchRepository);
             services.AddSingleton<IMatchRepository, MatchRepository>();
-            // TODO End
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
