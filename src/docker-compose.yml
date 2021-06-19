@@ -62,8 +62,8 @@ services:
     ports:
       - "8888:8888"
     depends_on:
-      - mongodb
-    #   - mongodb-seeder
+      - mongodb-ki
+      - mongodb-seeder-ki
 
   jupyter-server:   
     # API
@@ -86,7 +86,8 @@ services:
       - "8898:8898"
     depends_on:
       - jupyter-notebooks
-      # - mongodb-seeder
+      - mongodb-ki
+      - mongodb-seeder-ki
 
   csharp-backend:   
     build:
@@ -100,5 +101,5 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - MONGODB_CONNECTION_STRING=mongodb://mongodb:27017
     depends_on:
-      - jupyter-server
-      # - mongodb-seeder
+      - mongodb
+      - mongodb-seeder
