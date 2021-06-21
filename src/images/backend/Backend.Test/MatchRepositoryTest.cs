@@ -28,7 +28,7 @@ namespace Backend.Test
         {
             List<Match> matches = _matchRepository.Get();
 
-            Assert.That(matches.Count == 200);
+            Assert.That(matches.Count >= 200);
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace Backend.Test
             int defaultCount = matches.Count;
             Match createMatch = new Match() { match_id = 1 };
 
-            // Match hinzufügen
+            // Match hinzufï¿½gen
             Match createdMatch = _matchRepository.Create(createMatch);
 
             Assert.That(createdMatch.match_id == 1);
@@ -76,7 +76,7 @@ namespace Backend.Test
             int defaultCount = matches.Count;
             Match createMatch = new Match() { match_id = 1 };
 
-            // Match hinzufügen
+            // Match hinzufï¿½gen
             Match createdMatch = _matchRepository.Create(createMatch);
 
             Assert.That(createdMatch.match_id == 1);
@@ -87,7 +87,7 @@ namespace Backend.Test
             _matchRepository.Update(1, createMatch);
             Match updatedMatch = _matchRepository.Get(2);
 
-            // Aktualisierung überprüfen
+            // Aktualisierung ï¿½berprï¿½fen
             Assert.That(updatedMatch.match_id == 2);
 
             // Match entfernen
