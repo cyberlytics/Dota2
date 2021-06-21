@@ -10,7 +10,7 @@ class DatabaseConnector:
     connection = None
     active_collection = None
 
-    def __init__(self, url = 'localhost', port = 27017, database = 'Data-KI', collection = "MatchesDto"):
+    def __init__(self, url = 'localhost', port = 27018, database = 'Data-KI', collection = "MatchesDto"):
         # Url aus docker-compose.yml verwenden, falls vorhanden
         if "MONGODB_HOST" in environ:
             self.url = environ['MONGODB_HOST']
