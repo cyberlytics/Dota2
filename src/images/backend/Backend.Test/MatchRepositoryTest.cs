@@ -10,6 +10,8 @@ namespace Backend.Test
     {
         private MatchRepository _matchRepository;
         private MatchstoreDatabaseSettings _matchstoreDatabaseSettings;
+        private long existingId = 6049286410;
+
 
         [SetUp]
         public void Setup()
@@ -34,7 +36,7 @@ namespace Backend.Test
         [Test]
         public void Get_Vorhandenes_Match_Abrufen()
         {
-            Match match = _matchRepository.Get(6049286410);
+            Match match = _matchRepository.Get(existingId);
 
             Assert.That(match != null);
         }
@@ -95,6 +97,70 @@ namespace Backend.Test
 
             // Anzahl muss wieder der Anzahl am Anfang entsprechen
             Assert.That(_matchRepository.Get().Count == defaultCount);
+        }
+
+        [Test]
+        public void Remove_Vorhandenes_Match_Entfernen_Id ()
+        {
+            // Existierendes Match abrufen
+            Match match = _matchRepository.Get(existingId);
+
+            // Match ueber ID entfernen
+            _matchRepository.Remove(existingId);
+
+            // Match darf nicht mehr vorhanden sein
+            Assert.That(_matchRepository.Get(existingId) == null);
+
+            // Match wieder hinzufuegen
+            _matchRepository.Create(match);
+        }
+
+        [Test]
+        public void Remove_Vorhandenes_Match_Entfernen_Match()
+        {
+            // Existierendes Match abrufen
+            Match match = _matchRepository.Get(existingId);
+
+            // Match ueber ID entfernen
+            _matchRepository.Remove(match);
+
+            // Match darf nicht mehr vorhanden sein
+            Assert.That(_matchRepository.Get(existingId) == null);
+
+            // Match wieder hinzufuegen
+            _matchRepository.Create(match);
+        }
+
+        [Test]
+        public void Remove_Fehlendes_Match_Entfernen_ID()
+        {
+            // Nicht vorhandene Match-ID
+            long randomId = 123456;
+
+            // Match mit nicht existierender ID entfernen
+            _matchRepository.Remove(randomId);
+
+            // Match darf nicht hinterlegt sein
+            Assert.That(_matchRepository.Get(randomId) == null);
+        }
+
+        [Test]
+        public void Remove_Fehlendes_Match_Entfernen_Match()
+        {
+            // Nicht vorhandene Match-ID
+            long randomId = 123456;
+
+            // Matchobjekt mit nicht vorhandener ID erstellen
+            Match match = new Match
+            {
+                match_id = randomId
+            };
+
+            // Match mit nicht existierender ID entfernen
+            _matchRepository.Remove(match);
+
+            // Match darf nicht hinterlegt sein
+            Assert.That(_matchRepository.Get(randomId) == null);
         }
     }
 }
