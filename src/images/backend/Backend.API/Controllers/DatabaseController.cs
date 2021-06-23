@@ -12,17 +12,38 @@ namespace Backend.API.Controllers
     public class DatabaseController : ControllerBase
     {
         private readonly IMatchRepository _matchRepository;
+        private readonly IJupyterService _jupyterService;
 
-        public DatabaseController(IMatchRepository matchRepository)
+        public DatabaseController(IMatchRepository matchRepository, IJupyterService jupyterService)
         {
             _matchRepository = matchRepository;
+            _jupyterService = jupyterService;
+        }
+        
+        [HttpGet]
+        [Route("getAll")]
+        public Match GetAll()
+        {
+            return _matchRepository.Get().FirstOrDefault();
         }
         
         [HttpGet]
         [Route("get")]
-        public Match GetAll()
+        public Match Get(long id)
         {
-            return _matchRepository.Get().FirstOrDefault();
+            return _matchRepository.Get(id);
+        }
+        
+        [HttpGet]
+        [Route("move")]
+        public void MoveAll()
+        {
+            var list = _matchRepository.Get();
+
+            foreach (var match in list)
+            {
+                _jupyterService.WriteMatchAsync(match.match_id);
+            }
         }
     }
 }
