@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Backend.Domain.Models;
@@ -25,14 +26,18 @@ namespace Backend.Domain.Services
             var match = _matchRepository.Get(matchId);
             var matchDto = new MatchDto(match);
             var matchDtoJson = JsonConvert.SerializeObject(matchDto);
-            var httpContent = new StringContent(matchDtoJson, Encoding.UTF8, "application/json");
             var url = $"{pythonUrl}/writematch";
-            Console.WriteLine(matchDtoJson);
-            Console.WriteLine(url);
-
-            var response = await _httpClient.PostAsync(url, httpContent);
             
-            Console.WriteLine(response.StatusCode.ToString());
+            HttpResponseMessage response;
+
+            using (var request =
+                new HttpRequestMessage(new HttpMethod("POST"), url))
+            {
+                request.Content = new StringContent(matchDtoJson);
+                request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+
+                response = await _httpClient.SendAsync(request);
+            }
 
             return response.StatusCode;
         }
