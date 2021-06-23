@@ -9,4 +9,4 @@ WORKDIR /home
 COPY . .
 
 # Restore data
-CMD mongorestore --host mongodb --drop --gzip --dir ./seeds
+CMD sleep 5; mongorestore --host mongodb --drop --gzip --dir ./seeds;
