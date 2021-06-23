@@ -34,9 +34,9 @@ namespace Backend.Domain.Models
         public class MatchDtoPlayer
         {
             public int pings { get; set; }
-            public int kills { get; set; }
-            public int deaths { get; set; }
             public int assists { get; set; }
+            public int deaths { get; set; }
+            public int kills { get; set; }
             public bool win { get; set; }
         }
     }

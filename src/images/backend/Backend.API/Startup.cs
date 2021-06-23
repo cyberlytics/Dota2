@@ -43,6 +43,7 @@ namespace Backend.API
             });
 
             // Dependency Injections
+            services.AddScoped<IJupyterService, JupyterService>();
             services.AddScoped<IOpenDotaService, OpenDotaService>();
             services.AddScoped<IOpenDotaCallerService, OpenDotaCallerService>();
 

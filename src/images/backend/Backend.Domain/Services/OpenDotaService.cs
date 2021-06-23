@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Backend.Domain.Models;
-using Backend.Domain.Repositories;
 using Newtonsoft.Json;
 using System.Linq;
 
@@ -110,7 +109,8 @@ namespace Backend.Domain.Services
         //Holt eine Anzahl an Matches anhand einer Steam32 Id
         public async Task<List<long>> FetchAllMatchesForPlayer(long steam32Id, int limit = 10)
         {
-            string apiUrlAllPlayerMatches = $"https://api.opendota.com/api/players/{steam32Id}/matches?lobby_type=7&game_mode=22";
+            //Grundsätzliches Limit auf 300 Matches (~ 5 Minuten), da Laufzeit sonst aufgrund des RateLimits unberechnbar wird (z.B. 2000 Matches dauern über 30 Minuten)
+            string apiUrlAllPlayerMatches = $"https://api.opendota.com/api/players/{steam32Id}/matches?lobby_type=7&game_mode=22&limit=300";
             if (limit > 0)
             {
                 apiUrlAllPlayerMatches = $"https://api.opendota.com/api/players/{steam32Id}/matches?lobby_type=7&game_mode=22&limit={limit}";
@@ -190,7 +190,14 @@ namespace Backend.Domain.Services
                 }
             }
 
-            return accounts.FirstOrDefault().account_id;
+            if (accounts?.Count > 0 && accounts.FirstOrDefault().personaname == name)
+            {
+                return accounts.FirstOrDefault().account_id;
+            }
+            else
+            {
+                return -1;
+            }
         }
 
         //Holt 100 Public Matches
