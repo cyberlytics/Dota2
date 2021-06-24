@@ -1,5 +1,6 @@
 import pymongo
 from os import environ
+from typing import List, Dict
 
 class DatabaseConnector:
     url = ''
@@ -34,8 +35,12 @@ class DatabaseConnector:
         return self
     
     def disconnect(self):
-        self.client.close()
-        return self
+        try:
+            self.client.close()
+            return self
+        except AttributeError:
+            raise ConnectionError("Client is not connected to any database.")
+        
     
     def getCollectionNames(self):
         return self.db.list_collection_names()
@@ -66,3 +71,32 @@ class DatabaseConnector:
         self.active_collection.delete_one({
             'match_id': {'$eq': id}
         })
+
+def get_matches(start_id=0, num_matches=None) -> List[Dict]:
+    """
+    Funktion zum Holen von Matches aus der Datenbank.
+    * params: 
+        * start_id: Index für das erste Element relativ zur Datenbank
+        * num_matches: Anzahl der zu holenden Matches
+    * return: Liste mit Matches aus der Datenbank
+    """
+    retVal = []
+
+    # Verbinden zu Datenbank
+    db_con = DatabaseConnector()
+    db_con.connect()
+    
+    # Alle Matches aus Datenbank holen
+    db_matches = db_con.get()
+    matches = [match for match in db_matches]
+
+    db_con.disconnect()
+    # Matches nach start_id und num_matches filtern
+    if num_matches is None:
+        # Ganze Liste zurückgeben
+        retVal = matches
+    else:
+        # Liste abschneiden und zurückgeben
+        retVal = matches[start_id:start_id+num_matches]
+
+    return retVal
