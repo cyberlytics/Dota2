@@ -6,13 +6,13 @@ namespace Backend.Domain.Services
 {
     public interface IOpenDotaService
     {
-        Task<List<long>> FetchNewMatches(int number = 1);
-
-        Task<List<long>> FetchNewMatchesAndParse(int number = 1);
+        Task<List<long>> FetchNewMatches(int number = 1, bool parse = true);
 
         Task<List<long>> FetchAllMatchesForPlayer(long steam32Id, int limit = 100);
 
         Task<List<long>> FetchRecentMatchesForPlayer(long steam32Id);
+
+        Task<Match> FetchMatch(long matchId);
 
         Task<long> GetSteamIdByPersonaName(string name);
     }

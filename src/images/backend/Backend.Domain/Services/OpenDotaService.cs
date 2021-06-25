@@ -20,8 +20,8 @@ namespace Backend.Domain.Services
             _openDotaApi = openDotaApi;
         }
 
-        //Holt neue Public Matchdaten bis Anzahl erreicht
-        public async Task<List<long>> FetchNewMatches(int number = 1)
+        //Holt neue Public Matchdaten mit optionalen parsing bis Anzahl erreicht
+        public async Task<List<long>> FetchNewMatches(int number = 1, bool parse = true)
         {
             List<Match> validMatches = new();
 
@@ -31,57 +31,23 @@ namespace Backend.Domain.Services
                 //Hole 100 Public Matches
                 var publicMatches = await FetchPublicMatches();
 
-                //Filter nach Ranked && All Draft
+                //Filter nach Ranked && All Draft && bereits in Datenbank
                 List<Match> getMatches = new();
                 getMatches.AddRange(publicMatches.Where(x => x.lobby_type == 7 && x.game_mode == 22 && _repository.Get(x.match_id) == null));
 
-                //Komplette Matchdaten für alle gültigen Matches laden
-                foreach (var getMatch in getMatches)
+                //Optionales Parsing
+                if (parse)
                 {
-                    //Hole gesamte Match Data
-                    var requestedMatch = await FetchMatchData(getMatch.match_id);
-
-                    //Prüfe ob Match geparsed
-                    if (requestedMatch.version != -1)
+                    //Fordere Parse für alle IDs an
+                    foreach (var getMatch in getMatches)
                     {
-                        validMatches.Add(requestedMatch);
+                        //Fordere Parse an
+                        _ = await _openDotaApi.PostValue(apiUrlRequest + getMatch.match_id, new StringContent(""));
                     }
+
+                    //Wartezeit für Parsing
+                    await Task.Delay(TimeSpan.FromMinutes(2));
                 }
-            }
-
-            //Alle neuen Matches speichern
-            foreach (var match in validMatches)
-            {
-                _repository.Create(match);
-            }
-
-            return validMatches.Select(x => x.match_id).ToList();
-        }
-
-        //Holt neue Public Matchdaten und Parsed bis Anzahl erreicht
-        public async Task<List<long>> FetchNewMatchesAndParse(int number = 1)
-        {
-            List<Match> validMatches = new();
-
-            //Public Matches anfordern bis gewünschte Anzahl neuer Matches vorhanden
-            while (validMatches.Count < number)
-            {
-                //Hole 100 Public Matches
-                var publicMatches = await FetchPublicMatches();
-
-                //Filter nach Ranked && All Draft
-                List<Match> getMatches = new();
-                getMatches.AddRange(publicMatches.Where(x => x.lobby_type == 7 && x.game_mode == 22 && _repository.Get(x.match_id) == null));
-
-                //Fordere Parse für alle IDs an
-                foreach (var getMatch in getMatches)
-                {
-                    //Fordere Parse an
-                    _ = await _openDotaApi.PostValue(apiUrlRequest + getMatch.match_id, new StringContent(""));
-                }
-
-                //Wartezeit für Parsing
-                await Task.Delay(TimeSpan.FromMinutes(2));
 
                 //Komplette Matchdaten für alle gültigen Matches laden
                 foreach (var getMatch in getMatches)
@@ -172,6 +138,54 @@ namespace Backend.Domain.Services
             }
 
             return ids;
+        }
+
+        //Holt und parsed ein Match
+        public async Task<Match> FetchMatch(long matchId)
+        {
+            //Prüft ob Match bereits in Datenbank
+            if (_repository.Get(matchId) != null)
+            {
+                //Match bereits in Datenbank enthalten
+                return _repository.Get(matchId);
+            }
+
+            var getMatch = await FetchMatchData(matchId);
+
+            //Prüfe ob Lobby type und game Mode gültig
+            if (getMatch.game_mode != 22 || getMatch.lobby_type != 7)
+            {
+                //Match ungültig
+                return null;
+            }
+
+            //Prüft ob Match geparsed
+            if (getMatch.version == -1)
+            {
+                //Forder Parse an
+                _ = await _openDotaApi.PostValue("https://api.opendota.com/api/request/" + getMatch.match_id, new StringContent(""));
+
+                int timeout = 0;
+
+                //Warte bis Match geparsed
+                while (getMatch.version == -1 && timeout < 10)
+                {
+                    timeout++;
+                    await Task.Delay(TimeSpan.FromSeconds(30));
+                    getMatch = await FetchMatchData(matchId);
+                }
+
+                //Prüfe ob Match erfolgreich geparsed
+                if (getMatch.version == -1)
+                {
+                    //Timeout
+                    return null;
+                }
+            }
+
+            //Match geparsed und gütlig
+            _repository.Create(getMatch);
+            return getMatch;
         }
 
         //Holt die Steam32Id anhand eines Usernames

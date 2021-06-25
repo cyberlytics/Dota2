@@ -23,16 +23,10 @@ namespace Backend.API.Controllers
 
         [HttpGet]
         [Route("fetch")]
-        public async Task<List<long>> FetchNewMatches(int number = 1)
-        {
-            return await _openDotaService.FetchNewMatches(number);
-        }
+        public async Task<List<long>> FetchNewMatches(int number = 1, bool parse = true)
 
-        [HttpGet]
-        [Route("fetch and parse")]
-        public async Task<List<long>> FetchNewMatchesAndParse(int number = 1)
         {
-            return await _openDotaService.FetchNewMatchesAndParse(number);
+            return await _openDotaService.FetchNewMatches(number, parse);
         }
 
         [HttpGet]
@@ -40,6 +34,18 @@ namespace Backend.API.Controllers
         public async Task<List<long>> FetchAllMatchesForPlayer(long steam32id, int limit = 10)
         {
             return await _openDotaService.FetchAllMatchesForPlayer(steam32id, limit);
+        }
+
+        /// <summary>
+        /// Holt ein einzelnes Match anhand der Match ID. Wird optional vorher geparsed.
+        /// </summary>
+        /// <param name="matchId">ID des zu holenden Matches</param>
+        /// <returns>Gesamtes Match falls Match gütlig, sonst null</returns>
+        [HttpGet]
+        [Route("fetchmatch")]
+        public async Task<Match> FetchMatch(long matchId)
+        {
+            return await _openDotaService.FetchMatch(matchId);
         }
 
         [HttpGet]
