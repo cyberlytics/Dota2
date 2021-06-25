@@ -6,19 +6,25 @@ für den Jupyter-Notebooks-Server verfügbar: <br>
 URL: http://localhost:8898
 
 ## Schnittstellen
-* **/writematch**: schreibt übergebene Matchdaten in die MongoDB/KI-Datenbank
-    * params: Matchdaten als String oder Dateiinhalt
-* **/deletematch**: löscht ein Match aus der MongoDB/KI-Datenbank
-    * params: Match-ID des zu löschenden Match
+* **/writematch**: schreibt übergebene Matchdaten in die MongoDB/KI
+    * Parameter: Daten des zur übertragenden Matches im JSON-Format (siehe Abschnitt Parameter)
+    * Rückgabe: None
+* **/deletematch**: löscht ein Match aus der MongoDB/KI
+    * Parameter: Match-ID des zu löschenden Match
+    * Rückgabe: None
 * **/trainmodel**: startet das Training des KI-Modells
+    * Parameter: Name des zu trainierenden Modells (siehe Abschnitt Parameter)
+    * Rückgabe: None
 * **/predict**: startet die Vorhersage des Modells
+    * Parameter: Name des zu trainierenden Modells (siehe Abschnitt Parameter)
+    * Rückgabe: Beschreibung des Ergebnisses als String
 
-## Aufbau der zu übertragenden Matchdaten
-
+## Parameter
+### Aufbau Match
 ```
-{
+match = {
     'match_id': long int,
-    'radiant_win': boolean,
+    'duration': int,
     'players': list [player],
     'player': {
         'pings': int,
@@ -29,21 +35,46 @@ URL: http://localhost:8898
     }
 }
 ```
+### Model Parameter
+* model_name:
+    * "no_KDA": Modell zu User Story 1
+    * "KDA": Modell zu User Story 2 & 3
+
 
 ## Beispielaufrufe mit cURL:
-* Daten als String
+* **/writematch**:
 ```
-curl -X POST http://localhost:8898/writematch -H "Content-Type: application/json" --data "{'match_id': 0, 'radiant_win': True, "players": [...]}"
+curl -i -X POST http://localhost:8898/writematch -H "Content-Type: application/json" --data "<match>"
 ```
-* Daten aus Datei:
+* **/deletematch**:
 ```
-curl -X POST http://localhost:8898/writematch -H "Content-Type: application/json" --data @FILEPATH
+curl -i -X POST http://localhost:8898/deletematch -H "Content-Type: application/json" --data "<match_id>"
 ```
-Anmerkungen: 
-1. Die Daten als Strings müssen in **doppelten** Anführungszeichen übertragen werden. Attribute innerhalb des JSON-Objekts müssen in **einfachen** Anführungszeichen angegeben werden.
-2. Bei der Übertragung von Inhalten aus Dateien muss das "@" vor dem Dateipfad stehen.
+* **/trainmodel**:
+```
+curl -i -X POST http://localhost:8898/trainmodel -H "Content-Type: application/json" --data "<model_name>"
+```
+* **/predict**:
+```
+curl -i -X POST http://localhost:8898/predict -H "Content-Type: application/json" --data "<model_name>"
+```
 
 ## Return Codes:
-
-* 200: Call war erfolgreich
-* 501: Funktion noch nicht implementiert
+```
+200 OK: Keine Aktion ausgeführt
+```
+```
+201 Created: Eintrag erfolgreich in Datenbank erstellt
+```
+```
+204 No Content: Kein Eintrag in Datenbank gefunden
+```
+```
+205 Reset Content: Eintrag erfolgreich aus Datenbank entfernt
+```
+```
+409 Conflicted: Eintrag nicht in Datenbank erstellt, da schon vorhanden
+```
+```
+501 Not Implemented: Funktion noch nicht implementiert
+```
