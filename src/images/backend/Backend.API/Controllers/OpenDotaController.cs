@@ -21,19 +21,43 @@ namespace Backend.API.Controllers
             _openDotaService = openDotaService;
         }
 
+        /// <summary>
+        /// Holt neue Matches bis vorgegebene Anzahl erreicht ist.
+        /// </summary>
+        /// <param name="number">Mindestanzahl neuer Matches</param>
+        /// <param name="parse">Parse Anforderung für jedes Match</param>
+        /// <returns>Liste neuer Match Ids</returns>
         [HttpGet]
-        [Route("fetch")]
+        [Route("fetchnewmatches")]
         public async Task<List<long>> FetchNewMatches(int number = 1, bool parse = true)
 
         {
             return await _openDotaService.FetchNewMatches(number, parse);
         }
 
+        /// <summary>
+        /// Holt neue Matches eines Spielers
+        /// </summary>
+        /// <param name="steam32id">Steam32 ID des Spielers</param>
+        /// <param name="limit">Maximale Anzahl an zu prüfenden Spiele</param>
+        /// <returns>Liste neuer Match Ids</returns>
         [HttpGet]
-        [Route("fetch for player")]
+        [Route("fetchplayermatches")]
         public async Task<List<long>> FetchAllMatchesForPlayer(long steam32id, int limit = 10)
         {
             return await _openDotaService.FetchAllMatchesForPlayer(steam32id, limit);
+        }
+
+        /// <summary>
+        /// Holt neueste Matches eines Spielers
+        /// </summary>
+        /// <param name="steam32id">Steam32 ID des Spielers</param>
+        /// <returns>Liste neuer Match Ids</returns>
+        [HttpGet]
+        [Route("fetchrecentplayermatches")]
+        public async Task<List<long>> FetchRecentMatchesForPlayer(long steam32id)
+        {
+            return await _openDotaService.FetchRecentMatchesForPlayer(steam32id);
         }
 
         /// <summary>
@@ -48,8 +72,13 @@ namespace Backend.API.Controllers
             return await _openDotaService.FetchMatch(matchId);
         }
 
+        /// <summary>
+        /// Findet die Steam32Id zu einem Username
+        /// </summary>
+        /// <param name="name">Username des Spielers</param>
+        /// <returns>Gefundene Steam32Id, sonst -1</returns>
         [HttpGet]
-        [Route("get id")]
+        [Route("getsteamid")]
         public async Task<long> GetSteamIdByPersonaName(string name)
         {
             return await _openDotaService.GetSteamIdByPersonaName(name);
