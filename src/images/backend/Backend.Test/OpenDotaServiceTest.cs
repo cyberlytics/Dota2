@@ -32,13 +32,26 @@ namespace Backend.Test
         }
 
         [Test]
-        public async Task FetchNewMatches_Matches_Abrufen()
+        public async Task FetchNewMatches_Matches_Abrufen_ohneParse()
         {
             List<Match> matches = _matchRepository.Get();
 
             int currentMatchCount = matches.Count;
 
-            await _openDotaService.FetchNewMatches(1);
+            await _openDotaService.FetchNewMatches(1, false);
+
+            // Mindestens ein neues Match muss vorliegen
+            Assert.That(_matchRepository.Get().Count > currentMatchCount);
+        }
+
+        [Test]
+        public async Task FetchNewMatches_Matches_Abrufen_mitParse()
+        {
+            List<Match> matches = _matchRepository.Get();
+
+            int currentMatchCount = matches.Count;
+
+            await _openDotaService.FetchNewMatches(1, true);
 
             // Mindestens ein neues Match muss vorliegen
             Assert.That(_matchRepository.Get().Count > currentMatchCount);
@@ -50,30 +63,6 @@ namespace Backend.Test
             int matchCount = _matchRepository.Get().Count;
 
             await _openDotaService.FetchNewMatches(0);
-
-            // Kein neues Match darf vorliegen
-            Assert.That(_matchRepository.Get().Count == matchCount);
-        }
-
-        [Test]
-        public async Task FetchNewMatchesAndParse_Matches_Abrufen_Parsen()
-        {
-            int newMatchCount = 1;
-
-            int currentMatchCount = _matchRepository.Get().Count;
-
-            await _openDotaService.FetchNewMatchesAndParse(newMatchCount);
-
-            // Zahl der Matches mindestens um die angeforderte Zahl erhöht
-            Assert.That(_matchRepository.Get().Count >= currentMatchCount + newMatchCount);
-        }
-
-        [Test]
-        public async Task FetchNewMatchesAndParse_Null_Abrufen()
-        {
-            int matchCount = _matchRepository.Get().Count;
-
-            await _openDotaService.FetchNewMatchesAndParse(0);
 
             // Kein neues Match darf vorliegen
             Assert.That(_matchRepository.Get().Count == matchCount);
@@ -173,6 +162,50 @@ namespace Backend.Test
 
             // Matchzahl muss gleich bleiben
             Assert.That(_matchRepository.Get().Count == matchCount);
+        }
+
+        [Test]
+        public async Task FetchMatch_GültigesMatch()
+        {
+            long id = 6058011300;
+
+            // gültiges Match
+            Match ret = await _openDotaService.FetchMatch(id);
+
+            // Rückgabe muss ungleich null sein
+            Assert.That(ret != null);
+
+            //ID muss übereinstimmen
+            Assert.That(ret.match_id == id);
+
+            //Lobby Type muss 7 sein
+            Assert.That(ret.lobby_type == 7);
+
+            //Game Mode muss 22 sein
+            Assert.That(ret.game_mode == 22);
+
+            //Game muss geparsed sein
+            Assert.That(ret.version != -1);
+        }
+
+        [Test]
+        public async Task FetchMatch_UngültigesMatch()
+        {
+            // Ungültiges Match
+            Match ret = await _openDotaService.FetchMatch(6058018210);
+
+            // Rückgabe muss null sein
+            Assert.That(ret == null);
+        }
+
+        [Test]
+        public async Task FetchMatch_UngültigeId()
+        {
+            // Nicht existierende MatchId
+            Match ret = await _openDotaService.FetchMatch(1234567890);
+
+            // Rückgabe muss null sein
+            Assert.That(ret == null);
         }
 
         [Test]
