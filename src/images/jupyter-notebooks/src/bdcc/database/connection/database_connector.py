@@ -1,4 +1,5 @@
 import pymongo
+import pickle
 from os import environ
 from typing import List, Dict
 
@@ -40,7 +41,6 @@ class DatabaseConnector:
             return self
         except AttributeError:
             raise ConnectionError("Client is not connected to any database.")
-        
     
     def getCollectionNames(self):
         return self.db.list_collection_names()
@@ -71,6 +71,20 @@ class DatabaseConnector:
         self.active_collection.delete_one({
             'match_id': {'$eq': id}
         })
+    
+    def save_model(self, model, model_name):
+        model = self.active_collection.insert_one({
+            'name': model_name,
+            'model': model
+        })
+        return model
+    
+    def update_model(self, model, model_name):
+        model = self.active_collection.replace_one({
+            'name': {'$eq': model_name}
+        }, {'name': model_name,
+            'model': model})
+        return model
 
 def get_matches(start_id=0, num_matches=None) -> List[Dict]:
     """
@@ -100,3 +114,36 @@ def get_matches(start_id=0, num_matches=None) -> List[Dict]:
         retVal = matches[start_id:start_id+num_matches]
 
     return retVal
+
+def save_model(model, model_name):
+    """
+    Funktion zum Speichern eines ML-Modells in der MongoDB.
+    params: *model: zu speicherndes ML-Modell
+            *model_name: Name, unter dem das Modell gespeichert wird
+    """
+    # Model in pickle laden
+    pickled_model = pickle.dumps(model)
+    db_con = DatabaseConnector(collection="Models")
+    db_con.connect()
+    # nach Model in Datenbank suchen und speichern/updaten
+    models = list(db_con.get())
+    if any(model['name'] == model_name for model in models):
+        # Modell updaten
+        db_con.update_model(pickled_model, model_name)
+    else:
+        # Modell speichern
+        db_con.save_model(pickled_model, model_name)
+    db_con.disconnect()
+
+def load_model(model_name):
+    pickled_model = []
+    db_con = DatabaseConnector(collection="Models")
+    db_con.connect()
+    models = list(db_con.get())
+    try:
+        # Model mit model_name aus Datenbank laden und zurückgeben
+        pickled_model = [pickle.loads(model['model']) for model in models if model['name'] == model_name][0]
+    except IndexError:
+        raise NameError("Model with name {} not found in database".format(model_name))
+    db_con.disconnect()
+    return pickled_model
