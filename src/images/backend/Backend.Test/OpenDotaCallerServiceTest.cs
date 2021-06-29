@@ -19,6 +19,9 @@ namespace Backend.Test
             _openDotaCallerService = new OpenDotaCallerService();
         }
 
+        /// <summary>
+        /// Test, ob das Abfragen von Matches ueber OpenDota funktioniert
+        /// </summary>
         [Test]
         public async Task GetValue_Matches_Abfragen()
         {
@@ -28,6 +31,9 @@ namespace Backend.Test
             Assert.That(getValue.Length > 0);
         }
         
+        /// <summary>
+        /// Test, ob das inkorrekte Abfragen von OpenDota entsprechend reagiert
+        /// </summary>
         [Test]
         public async Task GetValue_Unvollstaendige_Url_Abrufen()
         {
@@ -37,6 +43,9 @@ namespace Backend.Test
             Assert.That(getValue.Length > 0);
         }
         
+        /// <summary>
+        /// Test, ob das Abfragen inkorrekter URLs entsprechend reagiert
+        /// </summary>
         [Test]
         public async Task GetValue_Falsche_Url_Abrufen ()
         {
@@ -54,6 +63,9 @@ namespace Backend.Test
             Assert.That(getValue == null);
         }
         
+        /// <summary>
+        /// Test, ob Post-Anfragen fuer Parseanfragen an OpenDota korrekt funktionieren
+        /// </summary>
         [Test]
         public async Task PostValue_Match_Anfragen()
         {
@@ -62,6 +74,9 @@ namespace Backend.Test
             Assert.That(postValue.StatusCode == HttpStatusCode.OK);
         }
         
+        /// <summary>
+        /// Test, ob fehlerhafte Parseanfragen an OpenDota entsprechend reagieren
+        /// </summary>
         [Test]
         public async Task PostValue_Fehlerhaft_Anfragen()
         {
@@ -70,6 +85,9 @@ namespace Backend.Test
             Assert.That(postValue.StatusCode == HttpStatusCode.NotFound);
         }
         
+        /// <summary>
+        /// Test, ob Parseanfragen an OpenDota fuer nicht existierende Matches entsprechend reagieren
+        /// </summary>
         [Test]
         public async Task PostValue_Nicht_Existentes_Match_Anfragen()
         {

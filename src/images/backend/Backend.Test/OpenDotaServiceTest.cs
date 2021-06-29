@@ -31,6 +31,9 @@ namespace Backend.Test
             _openDotaService = new OpenDotaService(_matchRepository, _openDotaApi);
         }
 
+        /// <summary>
+        /// Test, ob Matches ueber OpenDota ohne Parsing korrekt abgerufen werden
+        /// </summary>
         [Test]
         public async Task FetchNewMatches_Matches_Abrufen_ohneParse()
         {
@@ -44,6 +47,9 @@ namespace Backend.Test
             Assert.That(_matchRepository.Get().Count > currentMatchCount);
         }
 
+        /// <summary>
+        /// Test, ob Matches ueber OpenDota mit Parsing korrekt abgerufen werden
+        /// </summary>
         [Test]
         public async Task FetchNewMatches_Matches_Abrufen_mitParse()
         {
@@ -57,6 +63,9 @@ namespace Backend.Test
             Assert.That(_matchRepository.Get().Count > currentMatchCount);
         }
 
+        /// <summary>
+        /// Test, ob das Anfragen keiner Matches an OpenDota entsprechend reagiert
+        /// </summary>
         [Test]
         public async Task FetchNewMatches_Null_Abrufen()
         {
@@ -68,6 +77,9 @@ namespace Backend.Test
             Assert.That(_matchRepository.Get().Count == matchCount);
         }
 
+        /// <summary>
+        /// Test, ob das Anfragen aller Matches eines Spielers korrekt funktioniert
+        /// </summary>
         [Test]
         public async Task FetchAllMatchesForPlayer_Spieler_Matches_Abrufen()
         {
@@ -105,6 +117,9 @@ namespace Backend.Test
             Assert.That(occurenceCount >= limit);
         }
 
+        /// <summary>
+        /// Test, ob das Anfragen aller Matches eines Spielers, der nicht exisiert, entsprechend reagiert
+        /// </summary>
         [Test]
         public async Task FetchAllMatchesForPlayer_Falscher_Spieler_Matches_Abrufen()
         {
@@ -117,6 +132,9 @@ namespace Backend.Test
             Assert.That(_matchRepository.Get().Count == matchCount);
         }
 
+        /// <summary>
+        /// Test, ob das Anfragen der letzten Matches eines Spielers korrekt funktioniert
+        /// </summary>
         [Test]
         public async Task FetchRecentMatchesForPlayer_Spieler_Matches_Abrufen()
         {
@@ -152,6 +170,9 @@ namespace Backend.Test
             Assert.That(occurenceCount > 0);
         }
 
+        /// <summary>
+        /// Test, ob das Anfragen neuer Matches eines Spielers, der nicht existiert, entsprechend reagiert
+        /// </summary>
         [Test]
         public async Task FetchRecentMatchesForPlayer_Falscher_Spieler_Matches_Abrufen()
         {
@@ -164,8 +185,11 @@ namespace Backend.Test
             Assert.That(_matchRepository.Get().Count == matchCount);
         }
 
+        /// <summary>
+        /// Test, ob das Anfragen eines bestimmten gueltigen Matches korrekt funktioniert
+        /// </summary>
         [Test]
-        public async Task FetchMatch_GültigesMatch()
+        public async Task FetchMatch_GueltigesMatch()
         {
             long id = 6058011300;
 
@@ -188,8 +212,11 @@ namespace Backend.Test
             Assert.That(ret.version != -1);
         }
 
+        /// <summary>
+        /// Test, ob das Anfragen eines bestimmten Matches, das nicht existiert, entsprechend reagiert
+        /// </summary>
         [Test]
-        public async Task FetchMatch_UngültigesMatch()
+        public async Task FetchMatch_UngueltigesMatch()
         {
             // Ungültiges Match
             Match ret = await _openDotaService.FetchMatch(6058018210);
@@ -197,17 +224,10 @@ namespace Backend.Test
             // Rückgabe muss null sein
             Assert.That(ret == null);
         }
-
-        [Test]
-        public async Task FetchMatch_UngültigeId()
-        {
-            // Nicht existierende MatchId
-            Match ret = await _openDotaService.FetchMatch(1234567890);
-
-            // Rückgabe muss null sein
-            Assert.That(ret == null);
-        }
-
+        
+        /// <summary>
+        /// Test, ob das Anfragen der Steam32-ID eines Spielers ueber seinen Nutzernamen korrekt funktioniert
+        /// </summary>
         [Test]
         public async Task GetSteamIdByPersonaName_RealerSpieler()
         {
@@ -220,6 +240,9 @@ namespace Backend.Test
             Assert.That(foundId == steam32Id);
         }
 
+        /// <summary>
+        /// Test, ob das Anfragen der Steam32-ID eines Spielers ueber einen leeren Nutzernamen entsprechend reagiert
+        /// </summary>
         [Test]
         public async Task GetSteamIdByPersonaName_Leerstring()
         {
@@ -231,6 +254,9 @@ namespace Backend.Test
             Assert.That(foundId == -1);
         }
 
+        /// <summary>
+        /// Test, ob das Anfragen der Steam32-ID eines Spielers ueber nicht existierenden Nutzernamen entsprechend reagiert
+        /// </summary>
         [Test]
         public async Task GetSteamIdByPersonaName_FiktiverName()
         {

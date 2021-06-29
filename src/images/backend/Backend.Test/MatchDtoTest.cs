@@ -11,6 +11,7 @@ namespace Backend.Test
         private MatchRepository _matchRepository;
         private MatchstoreDatabaseSettings _matchstoreDatabaseSettings;
 
+        // Sicher in der DB hinterlegte Match-ID
         private readonly long existingId = 6049286410;
 
         // Testvorbereitungen
@@ -26,6 +27,9 @@ namespace Backend.Test
             _matchRepository = new MatchRepository(_matchstoreDatabaseSettings);
         }
 
+        /// <summary>
+        /// Test, ob ein neues MatchDto-Objekt korrekt erstellt wird
+        /// </summary>
         [Test]
         public void MatchDto_Erstellen()
         {
@@ -36,6 +40,9 @@ namespace Backend.Test
             Assert.That(matchDto.match_id == existingId);
         }
 
+        /// <summary>
+        /// Test, ob die MatchDtoPlayer-Objekte korrekt erstellt werden
+        /// </summary>
         [Test]
         public void MatchDto_Erstellen_MatchDtoPlayer_Abrufen()
         {

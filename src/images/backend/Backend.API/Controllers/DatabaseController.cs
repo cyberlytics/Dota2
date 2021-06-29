@@ -20,13 +20,22 @@ namespace Backend.API.Controllers
             _jupyterService = jupyterService;
         }
         
+        /// <summary>
+        /// Gibt alle in der Matchverwaltungs-DB gespeicherten Matches zurueck
+        /// </summary>
+        /// <returns>Alle gespeicherten Matches</returns>
         [HttpGet]
         [Route("getAll")]
-        public Match GetAll()
+        public List<Match> GetAll()
         {
-            return _matchRepository.Get().FirstOrDefault();
+            return _matchRepository.Get();
         }
         
+        /// <summary>
+        /// Gibt ein in der Matchverwaltungs-DB gespeichertes Match mit bestimmter ID zurueck, falls dieses existiert
+        /// </summary>
+        /// <param name="id">Match-ID des gesuchten Matchs</param>
+        /// <returns>Match, falls gefunden, sonst null</returns>
         [HttpGet]
         [Route("get")]
         public Match Get(long id)
@@ -34,14 +43,20 @@ namespace Backend.API.Controllers
             return _matchRepository.Get(id);
         }
         
+        /// <summary>
+        /// Schreibt alle in der Matchverwaltungs-DB hinterlegten Matches in die Matchanalyse-DB
+        /// </summary>
+        /// <returns>void</returns>
         [HttpGet]
         [Route("move")]
         public void MoveAll()
         {
+            // Alle Matches
             var list = _matchRepository.Get();
 
             foreach (var match in list)
             {
+                // Match ueber Jupyter-Service in Matchanalyse-DB schreiben
                 _jupyterService.WriteMatchAsync(match.match_id);
             }
         }

@@ -22,12 +22,22 @@ namespace Backend.Domain.Services
             httpClient = new HttpClient(handler);
         }
 
+        /// <summary>
+        /// HTTP Get-Anfrage
+        /// </summary>
+        /// <param name="url">Anfrage-URL</param>
+        /// <returns>Content der Antwort in Stringform</returns>
         public async Task<string> GetValue(string url)
         {
             HttpResponseMessage responseMessage = await httpClient.GetAsync(url);
             return await responseMessage.Content.ReadAsStringAsync();
         }
 
+        /// <summary>
+        /// HTTP Post-Anfrage
+        /// </summary>
+        /// <param name="url">Anfrage-URL</param>
+        /// /// <param name="stringContent">Inhalt der Post-Anfrage in Stringform</param>
         public async Task<HttpResponseMessage> PostValue(string url, StringContent stringContent)
         {
             return await httpClient.PostAsync(url, stringContent);

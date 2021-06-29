@@ -10,6 +10,8 @@ namespace Backend.Test
     {
         private MatchRepository _matchRepository;
         private MatchstoreDatabaseSettings _matchstoreDatabaseSettings;
+        
+        // Sicher in der Datenbank hinterlegte Match-ID
         private long existingId = 6049286410;
 
 
@@ -25,6 +27,9 @@ namespace Backend.Test
             _matchRepository = new MatchRepository(_matchstoreDatabaseSettings);
         }
 
+        /// <summary>
+        /// Test, ob das Abrufen aller Matches aus der DB korrekt funktioniert
+        /// </summary>
         [Test]
         public void Get_Alle_Matches_Abrufen()
         {
@@ -33,6 +38,9 @@ namespace Backend.Test
             Assert.That(matches.Count >= 200);
         }
 
+        /// <summary>
+        /// Test, ob das Abrufen eines konkreten Matches per ID korrekt funktioniert
+        /// </summary>
         [Test]
         public void Get_Vorhandenes_Match_Abrufen()
         {
@@ -41,6 +49,9 @@ namespace Backend.Test
             Assert.That(match != null);
         }
 
+        /// <summary>
+        /// Test, ob das Abrufen eines konkreten Matches per ID, das nicht existiert, korrekt funktioniert
+        /// </summary>
         [Test]
         public void Get_Nicht_Vorhandenes_Match_Abrufen()
         {
@@ -49,6 +60,9 @@ namespace Backend.Test
             Assert.That(match == null);
         }
 
+        /// <summary>
+        /// Test, ob das Schreiben und Loeschen eines Matches auf der DB korrekt funktioniert
+        /// </summary>
         [Test]
         public void Create_Neues_Match_In_Datenbank_Schreiben_und_Entfernen()
         {
@@ -70,6 +84,9 @@ namespace Backend.Test
             Assert.That(_matchRepository.Get().Count == defaultCount);
         }
 
+        /// <summary>
+        /// Test, ob das Aktualisieren eines Matchs ueber seine ID korrekt funktioniert
+        /// </summary>
         [Test]
         public void Create_Match_Aktualisieren()
         {
@@ -99,6 +116,9 @@ namespace Backend.Test
             Assert.That(_matchRepository.Get().Count == defaultCount);
         }
 
+        /// <summary>
+        /// Test, ob das Entfernen eines konkreten Matches per ID korrekt funktioniert
+        /// </summary>
         [Test]
         public void Remove_Vorhandenes_Match_Entfernen_Id ()
         {
@@ -115,6 +135,9 @@ namespace Backend.Test
             _matchRepository.Create(match);
         }
 
+        /// <summary>
+        /// Test, ob das Entfernen eines konkreten Matches per Match-Objekt korrekt funktioniert
+        /// </summary>
         [Test]
         public void Remove_Vorhandenes_Match_Entfernen_Match()
         {
@@ -131,6 +154,9 @@ namespace Backend.Test
             _matchRepository.Create(match);
         }
 
+        /// <summary>
+        /// Test, ob das Entfernen eines konkreten Matches per ID, das nicht existiert, korrekt funktioniert
+        /// </summary>
         [Test]
         public void Remove_Fehlendes_Match_Entfernen_ID()
         {
@@ -144,6 +170,9 @@ namespace Backend.Test
             Assert.That(_matchRepository.Get(randomId) == null);
         }
 
+        /// <summary>
+        /// Test, ob das Entfernen eines konkreten Matches per Match-Objekt, das nicht existiert, korrekt funktioniert
+        /// </summary>
         [Test]
         public void Remove_Fehlendes_Match_Entfernen_Match()
         {
