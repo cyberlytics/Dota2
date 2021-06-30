@@ -121,21 +121,29 @@ def save_model(model, model_name):
     params: *model: zu speicherndes ML-Modell
             *model_name: Name, unter dem das Modell gespeichert wird
     """
-    # Model in pickle laden
-    pickled_model = pickle.dumps(model)
-    db_con = DatabaseConnector(collection="Models")
-    db_con.connect()
-    # nach Model in Datenbank suchen und speichern/updaten
-    models = list(db_con.get())
-    if any(model['name'] == model_name for model in models):
-        # Modell updaten
-        db_con.update_model(pickled_model, model_name)
+    if model_name == "kda" or model_name == "no_kda":
+        # Model in pickle laden
+        pickled_model = pickle.dumps(model)
+        db_con = DatabaseConnector(collection="Models")
+        db_con.connect()
+        # nach Model in Datenbank suchen und speichern/updaten
+        models = list(db_con.get())
+        if any(model['name'] == model_name for model in models):
+            # Modell updaten
+            db_con.update_model(pickled_model, model_name)
+        else:
+            # Modell speichern
+            db_con.save_model(pickled_model, model_name)
+        db_con.disconnect()
     else:
-        # Modell speichern
-        db_con.save_model(pickled_model, model_name)
-    db_con.disconnect()
+        raise NameError("Invalid model name {}.".format(model_name))
 
 def load_model(model_name):
+    """
+    Funktion zum Laden eines ML-Modells aus der MongoDB.
+    params: *model_name: Name des zu ladenden Models
+    return: *pickled_model: Objekt des geladenen Modells
+    """
     pickled_model = []
     db_con = DatabaseConnector(collection="Models")
     db_con.connect()
