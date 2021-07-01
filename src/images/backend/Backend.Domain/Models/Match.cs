@@ -109,7 +109,7 @@ namespace Backend.Domain.Models
         public class Pick_Ban
         {
             ///<summary>
-            ///Wheter the choice is a pick or ban
+            ///Whether the choice is a pick or ban
             ///</summary>
             public bool is_pick { get; set; }
 
