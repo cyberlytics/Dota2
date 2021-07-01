@@ -21,7 +21,7 @@ namespace Backend.Domain.Services
         }
 
         //Holt neue Public Matchdaten mit optionalen parsing bis Anzahl erreicht
-        public async Task<List<long>> FetchNewMatches(int number = 1, bool parse = true)
+        public async Task<List<long>> FetchNewMatches(int number = 1, bool parse = true, bool numberIsTarget = false)
         {
             List<Match> validMatches = new();
 
@@ -59,6 +59,12 @@ namespace Backend.Domain.Services
                     if (requestedMatch.version != -1)
                     {
                         validMatches.Add(requestedMatch);
+
+                        //Prüfe Abbruchbedingung
+                        if (numberIsTarget && validMatches.Count == number)
+                        {
+                            break;
+                        }
                     }
                 }
             }
