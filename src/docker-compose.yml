@@ -1,48 +1,128 @@
 version: '3.4'
 services:
+  # Mongo Datenbank Matchverwaltung
   mongodb:
     image: mongo
     container_name: mongodb
     hostname: mongodb
     ports:
       - "27017:27017"
-    healthcheck:
-      test: test $$(echo "rs.initiate().ok || rs.status().ok" | mongo --quiet) -eq 1
-      interval: 10s
-      start_period: 30s
     command:
-      --replSet rs0
+      "--bind_ip_all --replSet rs0"
+    networks:
+      - microservice-backend
     logging:
       driver: none
-  
-  mongodb-ki:
+
+  mongodb2:
     image: mongo
-    container_name: mongodb-ki
-    hostname: mongodb-ki
+    container_name: mongodb2
+    hostname: mongodb2
     ports:
-      - "27018:27017"
-    healthcheck:
-      test: test $$(echo "rs.initiate().ok || rs.status().ok" | mongo --quiet) -eq 1
-      interval: 10s
-      start_period: 30s
+      - "27117:27017"
     command:
-      --replSet rs0-ki
+      "--bind_ip_all --replSet rs0"
+    networks:
+      - microservice-backend
     logging:
       driver: none
+
+  mongodb3:
+    image: mongo
+    container_name: mongodb3
+    hostname: mongodb3
+    ports:
+      - "27217:27017"
+    command:
+      "--bind_ip_all --replSet rs0"
+    networks:
+      - microservice-backend
+    logging:
+      driver: none
+
+  mongodb-init-replica-set:
+    image: mongo
+    depends_on:
+      - mongodb
+      - mongodb2
+      - mongodb3
+    volumes:
+      - ./deployment_scripts:/deployment_scripts
+    entrypoint:
+      - /deployment_scripts/initiate_replica.sh
+    networks:
+      - microservice-backend
 
   mongodb-seeder:
     build:
       context: ./images/mongo-seeder
     restart: on-failure
     depends_on:
-      - mongodb
+      - mongodb-init-replica-set
+    networks:
+      - microservice-backend
+
+  # Mongo Datenbank KI
+  mongodb-ki:
+    image: mongo
+    container_name: mongodb-ki
+    hostname: mongodb-ki
+    ports:
+      - "27018:27017"
+    command:
+      "--bind_ip_all --replSet rs0-ki"
+    networks:
+      - microservice-ki
+    logging:
+      driver: none  
+
+  mongodb-ki2:
+    image: mongo
+    container_name: mongodb-ki2
+    hostname: mongodb-ki2
+    ports:
+      - "27118:27017"
+    command:
+      "--bind_ip_all --replSet rs0-ki"
+    networks:
+      - microservice-ki
+    logging:
+      driver: none  
+
+  mongodb-ki3:
+    image: mongo
+    container_name: mongodb-ki3
+    hostname: mongodb-ki3
+    ports:
+      - "27218:27017"
+    command:
+      "--bind_ip_all --replSet rs0-ki"
+    networks:
+      - microservice-ki
+    logging:
+      driver: none  
+
+  mongodb-init-replica-set-ki:
+    image: mongo
+    depends_on:
+      - mongodb-ki
+      - mongodb-ki2
+      - mongodb-ki3
+    volumes:
+      - ./deployment_scripts:/deployment_scripts
+    entrypoint:
+      - /deployment_scripts/initiate_replica_ki.sh
+    networks:
+      - microservice-ki
 
   mongodb-seeder-ki:
     build:
       context: ./images/mongo-seeder-ki
     restart: on-failure
     depends_on:
-      - mongodb-ki
+      - mongodb-init-replica-set-ki
+    networks:
+      - microservice-ki
 
   jupyter-notebooks:   
     # Notebooks
@@ -61,6 +141,8 @@ services:
       - MONGODB_PORT=27017
     ports:
       - "8888:8888"
+    networks:
+      - microservice-ki
     depends_on:
       - mongodb-ki
       - mongodb-seeder-ki
@@ -84,6 +166,8 @@ services:
       - MONGODB_PORT=27017
     ports:
       - "8898:8898"
+    networks:
+      - microservice-ki
     depends_on:
       - jupyter-notebooks
       - mongodb-ki
@@ -100,6 +184,24 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - MONGODB_CONNECTION_STRING=mongodb://mongodb:27017
+      - JUPYTER_SERVER=http://jupyter-server:8898
+    networks:
+      - microservice-backend
+      - microservice-ki
     depends_on:
       - mongodb
       - mongodb-seeder
+
+networks:
+  microservice-backend:
+    name: backend
+    driver: bridge
+    # internal: true # Wenn internal auf true gesetzt wird, ist das Netzwerk nicht mehr standardmäßig vom Host aufrufbar.
+  microservice-ki:
+    name: ki
+    driver: bridge
+    # internal: true # Wenn internal auf true gesetzt wird, ist das Netzwerk nicht mehr standardmäßig vom Host aufrufbar.
+  frontend:
+    name: frontend
+    driver: bridge
+  

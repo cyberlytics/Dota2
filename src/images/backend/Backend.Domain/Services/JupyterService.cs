@@ -15,13 +15,16 @@ namespace Backend.Domain.Services
         private readonly IMatchRepository _matchRepository;
         private readonly IOpenDotaService _openDotaService;
         private HttpClient _httpClient;
-        private static string pythonUrl = "http://host.docker.internal:8898";
+        private static string pythonUrl;
 
         public JupyterService(IMatchRepository matchRepository, IOpenDotaService openDotaService)
         {
             _matchRepository = matchRepository;
             _openDotaService = openDotaService;
             _httpClient = new HttpClient();
+
+            pythonUrl = Environment.GetEnvironmentVariable("JUPYTER_SERVER") != null ?
+                Environment.GetEnvironmentVariable("JUPYTER_SERVER") : "http://host.docker.internal:8898";
         }
 
         /// <summary>
