@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # See: https://stackoverflow.com/a/57293443
 
 echo "Starting replica set initialize"
