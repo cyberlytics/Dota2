@@ -89,7 +89,8 @@ namespace Backend.Domain.Services
             {
                 //Versuche, ID zum Löschen an Server zu senden.
                 var request = new HttpRequestMessage(new HttpMethod("POST"), url);
-                request.Content = new StringContent($"{{{matchId}}}");
+                //request.Content = new StringContent($"{{{matchId}}}");
+                request.Content = new StringContent(matchId.ToString());
                 request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
 
                 var responseMessage = await _httpClient.SendAsync(request);

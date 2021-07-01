@@ -102,11 +102,11 @@ namespace Backend.Test
         [Test]
         public async Task DeleteMatchAsync_Match_Loeschen()
         {
-            (int)await _jupyterService.WriteMatchAsync(matchRepoExistingId);
+            await _jupyterService.WriteMatchAsync(matchRepoExistingId);
             
             // Existierendes Match loeschen und wieder aufnehmen
             int resultCode = (int) await _jupyterService.DeleteMatchAsync(matchRepoExistingId);
-            
+            Console.Write(resultCode);            
             Assert.That(resultCode == 205);
             
             await _jupyterService.WriteMatchAsync(matchRepoExistingId);
