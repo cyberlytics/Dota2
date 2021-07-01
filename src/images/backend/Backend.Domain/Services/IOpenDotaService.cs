@@ -6,7 +6,7 @@ namespace Backend.Domain.Services
 {
     public interface IOpenDotaService
     {
-        Task<List<long>> FetchNewMatches(int number = 1, bool parse = true);
+        Task<List<long>> FetchNewMatches(int number = 1, bool parse = true, bool numberIsTarget = false);
 
         Task<List<long>> FetchAllMatchesForPlayer(long steam32Id, int limit = 100);
 

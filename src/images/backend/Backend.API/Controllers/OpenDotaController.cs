@@ -26,13 +26,14 @@ namespace Backend.API.Controllers
         /// </summary>
         /// <param name="number">Mindestanzahl neuer Matches</param>
         /// <param name="parse">Parse Anforderung für jedes Match</param>
+        /// <param name="numberIsTarget">Erstellt maximal number neue Matches</param>
         /// <returns>Liste neuer Match Ids</returns>
         [HttpGet]
         [Route("fetchnewmatches")]
-        public async Task<List<long>> FetchNewMatches(int number = 1, bool parse = true)
+        public async Task<List<long>> FetchNewMatches(int number = 1, bool parse = true, bool numberIsTarget = false)
 
         {
-            return await _openDotaService.FetchNewMatches(number, parse);
+            return await _openDotaService.FetchNewMatches(number, parse, numberIsTarget);
         }
 
         /// <summary>
