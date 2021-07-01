@@ -41,6 +41,8 @@ namespace Backend.Domain.Services
             if (match == null)
             {
                 match = await _openDotaService.FetchMatch(matchId);
+
+                if (match == null) return HttpStatusCode.BadRequest;
             }
 
             string matchDtoJson;
