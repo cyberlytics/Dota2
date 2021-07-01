@@ -192,6 +192,19 @@ services:
       - mongodb
       - mongodb-seeder
 
+  node:
+    build: './images/frontend/'
+    volumes:
+      - ./images/frontend/:/home/app/
+      - /home/app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - BACKEND_SERVER=csharp-backend
+    depends_on:
+      - csharp-backend
+    ports:
+      - "3000:3000"
+
 networks:
   microservice-backend:
     name: backend

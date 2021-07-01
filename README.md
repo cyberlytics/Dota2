@@ -24,7 +24,7 @@ Docker
 
 ## Start der Anwendung
 
-Nach dem Start von Docker kann mithilfe des folgenden Befehls innerhalb dieses Verzeichnisses das System gestartet werden. Der initiale Start benötigt mit erstmaligen Download der Images einige Zeit (ca. 3 Minuten oder deutlich mehr, abhängig von der Performance des Systems), da viele Pakete erst heruntergeladen und automatisch konfiguriert werden müssen.
+Nach dem Start von Docker kann mithilfe des folgenden Befehls innerhalb des Verzeichnisses /src/ das System gestartet werden. Der initiale Start benötigt mit erstmaligen Download der Images einige Zeit (ca. 3 Minuten oder deutlich mehr, abhängig von der Performance des Systems), da viele Pakete erst heruntergeladen und automatisch konfiguriert werden müssen.
 
 Zum Start des Systems im Verzeichnis der 'docker-compose.yml' auszuführen:
 
@@ -37,13 +37,20 @@ docker-compose down && docker-compose build && docker-compose up
 Die Konfiguration der einzelnen Komponenten und der dazugehörigen Docker Images ist in der Datei **docker-compose.yml** möglich.
 Das System ist in mehrere Komponenten aufgeteilt. Dabei wurden einige Docker Images erweitert und befinden sich im Ordner **/images** :
 
-### jupyter-notebooks
-Stellt einen Jupyter-Server zur Verfügung, mit dem die in diesem Teilprojekt durchgeführten Analysen eingesehen werden können.
+### Frontend
+
+Das Frontend ist aufrufbar unter:
+
+Aufruf:
+- http://localhost:3000/
+
+### Matchanalyse (jupyter-notebooks)
+Stellt einen Jupyter-Server zur Verfügung, mit dem die in diesem Projekt durchgeführten Analysen eingesehen werden können.
 
 Aufruf:
 - http://localhost:8888/
 
-### jupyter-notebooks-server
+### Matchanalyse (jupyter-notebooks-server)
 Stellt einen Jupyter-Server zur Verfügung, der als API konfiguriert worden ist. Dadurch ist es möglich, mithilfe eines Jupyter-Notebooks auf Datensätze zugreifen zu können. Die Algorithmen der in *jupyter-notebooks* erstellten Notebooks können dadurch wiederverwendet und für weitere Komponenten integriert werden.
 
 Anfragen an die API werden dabei an
@@ -52,7 +59,7 @@ Anfragen an die API werden dabei an
 
 gesendet.
 
-### csharp-backend
+### Matchverwaltung (.NET Core)
 
 - http://localhost/swagger/index.html
 
@@ -77,9 +84,14 @@ Import der Daten in eine MongoDB (Automatisch mithilfe der mongo-seeder Images):
 ### mongo-seeder
 Zuständig für die initiale Befüllung der Datenbank (MongoDB) mit Daten.
 
+### mongodb-init-replica-set
+
+Mithilfe der Scripts in /src/deployment_scripts/ findet die Initiierung der MongoDB Replica Sets statt.
+
 ### Extern:
 
 Gitignore:
 
 - https://github.com/toptal/gitignore/blob/master/templates/JupyterNotebooks.gitignore
 - https://gist.github.com/takekazuomi/10955889
+- https://stackoverflow.com/a/57293443
