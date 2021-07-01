@@ -41,7 +41,7 @@ namespace Backend.Test
 
             int currentMatchCount = matches.Count;
 
-            await _openDotaService.FetchNewMatches(1, false);
+            await _openDotaService.FetchNewMatches(1, false, false);
 
             // Mindestens ein neues Match muss vorliegen
             Assert.That(_matchRepository.Get().Count > currentMatchCount);
@@ -57,10 +57,42 @@ namespace Backend.Test
 
             int currentMatchCount = matches.Count;
 
-            await _openDotaService.FetchNewMatches(1, true);
+            await _openDotaService.FetchNewMatches(1, true, false);
 
             // Mindestens ein neues Match muss vorliegen
             Assert.That(_matchRepository.Get().Count > currentMatchCount);
+        }
+
+        /// <summary>
+        /// Test, ob minimum Anzahl neuer Matches abgerufen wurde
+        /// </summary>
+        [Test]
+        public async Task FetchNewMatches_Matches_Abrufen_Minimum()
+        {
+            List<Match> matches = _matchRepository.Get();
+
+            int currentMatchCount = matches.Count;
+
+            await _openDotaService.FetchNewMatches(1, true, true);
+
+            // Mindestens ein neues Match muss vorliegen
+            Assert.That(_matchRepository.Get().Count > currentMatchCount);
+        }
+
+        /// <summary>
+        /// Test, ob exakte Anzahl neuer Matches abgerufen wurde
+        /// </summary>
+        [Test]
+        public async Task FetchNewMatches_Matches_Abrufen_Exakt()
+        {
+            List<Match> matches = _matchRepository.Get();
+
+            int currentMatchCount = matches.Count;
+
+            await _openDotaService.FetchNewMatches(2, true, false);
+
+            // Mindestens ein neues Match muss vorliegen
+            Assert.That(_matchRepository.Get().Count == currentMatchCount + 2);
         }
 
         /// <summary>
@@ -71,7 +103,7 @@ namespace Backend.Test
         {
             int matchCount = _matchRepository.Get().Count;
 
-            await _openDotaService.FetchNewMatches(0);
+            await _openDotaService.FetchNewMatches(0, true, false);
 
             // Kein neues Match darf vorliegen
             Assert.That(_matchRepository.Get().Count == matchCount);
@@ -224,7 +256,7 @@ namespace Backend.Test
             // Rückgabe muss null sein
             Assert.That(ret == null);
         }
-        
+
         /// <summary>
         /// Test, ob das Anfragen der Steam32-ID eines Spielers ueber seinen Nutzernamen korrekt funktioniert
         /// </summary>
