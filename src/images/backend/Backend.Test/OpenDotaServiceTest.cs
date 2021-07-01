@@ -89,7 +89,7 @@ namespace Backend.Test
 
             int currentMatchCount = matches.Count;
 
-            await _openDotaService.FetchNewMatches(2, true, false);
+            await _openDotaService.FetchNewMatches(2, true, true);
 
             // Mindestens ein neues Match muss vorliegen
             Assert.That(_matchRepository.Get().Count == currentMatchCount + 2);
