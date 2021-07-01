@@ -29,6 +29,23 @@ namespace Backend.Domain.Models
             }
         }
 
+        public MatchDto(Match match, long player_id)
+        {
+            match_id = match.match_id;
+            radiant_win = match.radiant_win;
+            players = new List<MatchDtoPlayer>();
+
+            var matchPlayer = match.players.Find(x => x.account_id == player_id);
+            if(matchPlayer != null) players.Add(new MatchDtoPlayer()
+            {
+                pings = matchPlayer.pings,
+                kills = matchPlayer.kills,
+                deaths = matchPlayer.deaths,
+                assists = matchPlayer.assists,
+                win = matchPlayer.win != 0
+            });
+        }
+
         ///<summary>
         /// Match-ID
         ///</summary>

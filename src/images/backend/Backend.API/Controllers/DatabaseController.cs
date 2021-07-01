@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Backend.Domain.Models;
@@ -13,7 +14,12 @@ namespace Backend.API.Controllers
     {
         private readonly IMatchRepository _matchRepository;
         private readonly IJupyterService _jupyterService;
-
+        
+        /// <summary>
+        /// Controller zum Testen der Datenbank.
+        /// </summary>
+        /// <param name="matchRepository"></param>
+        /// <param name="jupyterService"></param>
         public DatabaseController(IMatchRepository matchRepository, IJupyterService jupyterService)
         {
             _matchRepository = matchRepository;
@@ -49,6 +55,13 @@ namespace Backend.API.Controllers
         /// <returns>void</returns>
         [HttpGet]
         [Route("move")]
+        public void Move(long id)
+        {
+            _jupyterService.WriteMatchAsync(id);
+        }
+        
+        [HttpGet]
+        [Route("moveAll")]
         public void MoveAll()
         {
             // Alle Matches
