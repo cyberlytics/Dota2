@@ -3,6 +3,7 @@ import pickle
 from os import environ
 from typing import List, Dict
 
+# Klasse zur Verwaltung der Verbindung zu einer MongoDB
 class DatabaseConnector:
     url = ''
     port = -1
@@ -29,6 +30,9 @@ class DatabaseConnector:
         pass
         
     def connect(self):
+        """
+        Baut eine Verbindung zur MongoDB auf.
+        """
         self.client = pymongo.MongoClient(self.url, self.port)
         self.db = self.client[self.database]
         self.connection = self
@@ -36,6 +40,9 @@ class DatabaseConnector:
         return self
     
     def disconnect(self):
+        """
+        Schließt die Verbindung zur MongoDB.
+        """
         try:
             self.client.close()
             return self
@@ -43,16 +50,49 @@ class DatabaseConnector:
             raise ConnectionError("Client is not connected to any database.")
     
     def getCollectionNames(self):
+        """
+        Gibt alle in der MongoDB vorhandenen Collection-Names zurück.
+
+        Returns:
+        List: Liste mit den Collections
+        """
         return self.db.list_collection_names()
 
     def getCollection(self, collection):
+        """
+        Gibt die gesuchte Collection zurück.
+
+        Parameters:
+        collection (string): Name der Collection.
+
+        Returns:
+        Collection: Gibt die Collection zurück.
+        """
         return self.db[collection]
     
     def create(self, match):
+        """
+        Erstellt einen neuen Eintrag / neues Match in der MongoDB.
+
+        Parameters:
+        match (Match): Zu erstellendes Match
+
+        Returns:
+        Match: Erstelltes Match
+        """
         match = self.active_collection.insert_one(match)
         return match
 
     def get(self, id=None):
+        """
+        Gibt alle hinterlegten Matches zurueck
+
+        Parameters:
+        id (int): Optional: Match-ID des gesuchten Matchs
+
+        Returns:
+        List<Match>: Liste mit den gesuchten Matches
+        """
         if id == None:
             # Alle Einträge zurückgeben
             return self.active_collection.find()
@@ -63,16 +103,39 @@ class DatabaseConnector:
             })
 
     def update(self, id, match):
+        """
+        Aktualisiert ein Match
+
+        Parameters:
+        id (int): Match-ID des zu aktualisierende Matchs
+        match (Match): Das neue Match
+        """
         self.active_collection.replace_one({
             'match_id': {'$eq': id}
         }, match)
 
     def remove(self, id):
+        """
+        Löscht das Match.
+
+        Parameters:
+        id (int): Die id des zu löschende Matchs
+        """
         self.active_collection.delete_one({
             'match_id': {'$eq': id}
         })
     
     def save_model(self, model, model_name):
+        """
+        Speichert das Model
+
+        Parameters:
+        model (Model): Zu speicherndes ML-Modell
+        model_name (str): Name, unter dem das Modell gespeichert wird
+            
+        Returns:
+        Model: Gespeicherte Model
+        """
         model = self.active_collection.insert_one({
             'name': model_name,
             'model': model
@@ -80,6 +143,16 @@ class DatabaseConnector:
         return model
     
     def update_model(self, model, model_name):
+        """
+        Aktualisiert das übergebene Model
+
+        Parameters:
+        model (Model): Zu speicherndes ML-Modell
+        model_name (str): Name, unter dem das Modell gespeichert wird
+
+        Returns:
+        Model: Aktualisierte Model
+        """
         model = self.active_collection.replace_one({
             'name': {'$eq': model_name}
         }, {'name': model_name,

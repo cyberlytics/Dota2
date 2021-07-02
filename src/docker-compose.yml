@@ -1,6 +1,7 @@
 version: '3.4'
 services:
   # Mongo Datenbank Matchverwaltung
+  # 1. MongoDB, die zum ReplicaSet der Matchverwaltung gehört
   mongodb:
     image: mongo
     container_name: mongodb
@@ -14,6 +15,7 @@ services:
     logging:
       driver: none
 
+  # 2. MongoDB, die zum ReplicaSet der Matchverwaltung gehört
   mongodb2:
     image: mongo
     container_name: mongodb2
@@ -27,6 +29,7 @@ services:
     logging:
       driver: none
 
+  # 3. MongoDB, die zum ReplicaSet der Matchverwaltung gehört
   mongodb3:
     image: mongo
     container_name: mongodb3
@@ -40,6 +43,7 @@ services:
     logging:
       driver: none
 
+  # Zusammenführung der MongoDBs der Matchverwaltung in ein ReplicaSet
   mongodb-init-replica-set:
     image: mongo
     depends_on:
@@ -53,6 +57,7 @@ services:
     networks:
       - microservice-backend
 
+  # Befüllung der MongoDBs der Matchverwaltung mit initialen Daten
   mongodb-seeder:
     build:
       context: ./images/mongo-seeder
@@ -63,6 +68,7 @@ services:
       - microservice-backend
 
   # Mongo Datenbank KI
+  # 1. MongoDB, die zum ReplicaSet der Matchanalyse gehört
   mongodb-ki:
     image: mongo
     container_name: mongodb-ki
@@ -76,6 +82,7 @@ services:
     logging:
       driver: none  
 
+  # 2. MongoDB, die zum ReplicaSet der Matchanalyse gehört
   mongodb-ki2:
     image: mongo
     container_name: mongodb-ki2
@@ -89,6 +96,7 @@ services:
     logging:
       driver: none  
 
+  # 3. MongoDB, die zum ReplicaSet der Matchanalyse gehört
   mongodb-ki3:
     image: mongo
     container_name: mongodb-ki3
@@ -102,6 +110,7 @@ services:
     logging:
       driver: none  
 
+  # Zusammenführung der MongoDBs der Matchanalyse in ein ReplicaSet      
   mongodb-init-replica-set-ki:
     image: mongo
     depends_on:
@@ -115,6 +124,7 @@ services:
     networks:
       - microservice-ki
 
+  # Befüllung der MongoDBs der Matchanalyse mit initialen Daten
   mongodb-seeder-ki:
     build:
       context: ./images/mongo-seeder-ki
@@ -124,6 +134,9 @@ services:
     networks:
       - microservice-ki
 
+  # Starten eines Jupyter-Notebooks-Servers, damit die Notebooks innerhalb
+  # einer Weboberfläche bearbeitet werden können.
+  # Matchanalyse
   jupyter-notebooks:   
     # Notebooks
     build: './images/jupyter-notebooks/'
@@ -147,6 +160,9 @@ services:
       - mongodb-ki
       - mongodb-seeder-ki
 
+  # Starten eines Jupyter-Gateway-Servers, damit dieser mit angegebenen
+  # einer REST-Schnittstelle angesprochen werden kann.
+  # Matchanalyse
   jupyter-server:   
     # API
     build: './images/jupyter-notebooks/'
@@ -173,6 +189,7 @@ services:
       - mongodb-ki
       - mongodb-seeder-ki
 
+  # Matchverwaltung (.NET Core)
   csharp-backend:   
     build:
       context: './images/backend/'
@@ -192,6 +209,7 @@ services:
       - mongodb
       - mongodb-seeder
 
+  # Frontend (React.js)
   node:
     build: './images/frontend/'
     volumes:
@@ -205,16 +223,17 @@ services:
     ports:
       - "3000:3000"
 
+# Konfiguration der virtuellen Netzwerke
 networks:
   microservice-backend:
     name: backend
-    driver: bridge
-    # internal: true # Wenn internal auf true gesetzt wird, ist das Netzwerk nicht mehr standardmäßig vom Host aufrufbar.
+    driver: bridge # Bridge ist Docker-Default.
+    # internal: true # Wenn internal auf true gesetzt wird, ist das Netzwerk nicht mehr standardmäßig vom Host aufrufbar. Während Development noch hinderlich.
   microservice-ki:
     name: ki
     driver: bridge
-    # internal: true # Wenn internal auf true gesetzt wird, ist das Netzwerk nicht mehr standardmäßig vom Host aufrufbar.
-  frontend:
+    # internal: true # Wenn internal auf true gesetzt wird, ist das Netzwerk nicht mehr standardmäßig vom Host aufrufbar. Während Development noch hinderlich.
+  frontend: # Das Frontend könnte mit diesem Netzwerk erweitert werden, wird aber noch nicht verwendet.
     name: frontend
     driver: bridge
   
