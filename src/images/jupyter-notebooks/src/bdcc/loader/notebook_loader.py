@@ -4,6 +4,10 @@ from IPython import get_ipython
 from nbformat import read
 from IPython.core.interactiveshell import InteractiveShell
 
+# Stark angelehnt an: 
+# https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Importing%20Notebooks.html
+
+
 def find_notebook(fullname, path=None):
     """find a notebook, given its fully qualified name and an optional path
 
@@ -32,8 +36,6 @@ class NotebookLoader(object):
     def load_module(self, fullname):
         """import a notebook as a module"""
         path = find_notebook(fullname, self.path)
-
-        # print ("importing Jupyter notebook from %s" % path)
 
         # load the notebook object
         with io.open(path, 'r', encoding='utf-8') as f:

@@ -10,7 +10,6 @@ namespace Backend.Domain.Services
     public interface IOpenDotaCallerService
     {
         Task<string> GetValue(string url);
-
         Task<HttpResponseMessage> PostValue(string url, StringContent stringContent);
     }
 }

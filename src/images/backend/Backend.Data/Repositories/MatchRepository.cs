@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Backend.Domain.Services
 {
+    /// <summary>
+    /// Klasse zur Verwaltung der Verbindung zu einer MongoDB innerhalb einer Docker-Umgebung.
+    /// </summary>
     public class MatchRepository : IMatchRepository
     {
         private readonly IMongoCollection<Match> _matches;
@@ -56,10 +59,10 @@ namespace Backend.Domain.Services
         }
 
         /// <summary>
-        /// Speichert ein Matchobjekt in der Datenbank
+        /// Speichert ein Match in der Datenbank
         /// </summary>
         /// <param name="match">Zu hinterlegendes Match</param>
-        /// <returns>Erstelltes Match</returns>
+        /// <returns>Hinzugefuegtes Match</returns>
         public Match Create(Match match)
         {
             _matches.InsertOne(match);
@@ -70,7 +73,7 @@ namespace Backend.Domain.Services
         /// Ersetzt ein gespeichertes Match
         /// </summary>
         /// <param name="id">Match-ID des zu ersetzenden Matchs</param>
-        /// /// <param name="match">Match, das als Ersatz dient</param>
+        /// <param name="match">Match, das als Ersatz dient</param>
         public void Update(long id, Match match)
         {
             _matches.ReplaceOne(m => m.match_id == id, match);
@@ -79,7 +82,7 @@ namespace Backend.Domain.Services
         /// <summary>
         /// Entfernt ein Match aus der Datenbank
         /// </summary>
-        /// <param name="match">Zu entfernendes</param>
+        /// <param name="match">Zu entfernendes Match</param>
         public void Remove(Match match)
         {
             Remove(match.match_id);

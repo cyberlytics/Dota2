@@ -2,7 +2,9 @@
 
 namespace Backend.Domain.Models
 {
-    // Gekuerzte Variante eines Matches mit weniger Informationen
+    /// <summary>
+    /// Gekuerzte Variante eines Matches mit weniger Informationen
+    /// </summary>
     public class MatchDto
     {
 

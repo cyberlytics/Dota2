@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace Backend.API.Controllers
 {
-    //Controller für alle Anfragen an die OpenDota API
+    // Controller für alle Anfragen an die OpenDota API
 
     [ApiController]
     [Route("api/[controller]")]

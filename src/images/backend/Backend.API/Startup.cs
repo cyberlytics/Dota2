@@ -32,12 +32,13 @@ namespace Backend.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // setup database connection configuration
+            // Initialisiert die Konfiguration zur Verbindung zur Datenbank
             services.Configure<MatchstoreDatabaseSettings>(
                 Configuration.GetSection(nameof(MatchstoreDatabaseSettings)));
             services.AddSingleton<IMatchstoreDatabaseSettings>(sp =>
                 sp.GetRequiredService<IOptions<MatchstoreDatabaseSettings>>().Value);
 
+            // Aktivierung von Cross-Origin Requests
             services.AddCors();
 
             services.AddControllers();
@@ -62,6 +63,8 @@ namespace Backend.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // Konfiguration der Cross-Origin Requests
+            // Sehr einfache Konfiguration! - Es wird einfach alles erlaubt.
             app.UseCors(builder => builder
                      .AllowAnyHeader()
                      .AllowAnyMethod()
