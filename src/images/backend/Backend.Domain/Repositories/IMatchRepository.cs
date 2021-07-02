@@ -10,8 +10,10 @@ namespace Backend.Domain.Services
     public interface IMatchRepository
     {
         List<Match> Get();
+        long GetCount(long id);
         Match Get(long id);
         Match Create(Match match);
+        
         void Update(long id, Match match);
         void Remove(Match match);
         void Remove(long id);

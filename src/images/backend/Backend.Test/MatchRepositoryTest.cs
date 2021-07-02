@@ -88,7 +88,7 @@ namespace Backend.Test
         /// Test, ob das Aktualisieren eines Matchs ueber seine ID korrekt funktioniert
         /// </summary>
         [Test]
-        public void Create_Match_Aktualisieren()
+        public void Create_Match()
         {
             // Anzahl muss wieder Default-Datensatz sein
             List<Match> matches = _matchRepository.Get();
@@ -115,21 +115,24 @@ namespace Backend.Test
             // Anzahl muss wieder der Anzahl am Anfang entsprechen
             Assert.That(_matchRepository.Get().Count == defaultCount);
         }
-
+        
         /// <summary>
         /// Test, ob das Entfernen eines konkreten Matches per ID korrekt funktioniert
         /// </summary>
         [Test]
-        public void Remove_Vorhandenes_Match_Entfernen_Id ()
+        public void Remove_Vorhandenes_Match_Id ()
         {
-            // Existierendes Match abrufen
+            // Gespeichertes Match
             Match match = _matchRepository.Get(existingId);
+            
+            // Anzahl Vorkommnisse existierendes Match abrufen
+            long matchCount = _matchRepository.GetCount(existingId);
 
             // Match ueber ID entfernen
             _matchRepository.Remove(existingId);
 
-            // Match darf nicht mehr vorhanden sein
-            Assert.That(_matchRepository.Get(existingId) == null);
+            // Match muss einmal weniger vorhanden sein
+            Assert.That(matchCount == _matchRepository.GetCount(existingId) - 1);
 
             // Match wieder hinzufuegen
             _matchRepository.Create(match);
@@ -139,16 +142,19 @@ namespace Backend.Test
         /// Test, ob das Entfernen eines konkreten Matches per Match-Objekt korrekt funktioniert
         /// </summary>
         [Test]
-        public void Remove_Vorhandenes_Match_Entfernen_Match()
+        public void Remove_Vorhandenes_Match()
         {
             // Existierendes Match abrufen
             Match match = _matchRepository.Get(existingId);
+            
+            // Anzahl Vorkommnisse existierendes Match abrufen
+            long matchCount = _matchRepository.GetCount(existingId);
 
             // Match ueber ID entfernen
             _matchRepository.Remove(match);
 
-            // Match darf nicht mehr vorhanden sein
-            Assert.That(_matchRepository.Get(existingId) == null);
+            // Match muss einmal weniger vorhanden sein
+            Assert.That(matchCount == _matchRepository.GetCount(existingId) - 1);
 
             // Match wieder hinzufuegen
             _matchRepository.Create(match);
@@ -174,7 +180,7 @@ namespace Backend.Test
         /// Test, ob das Entfernen eines konkreten Matches per Match-Objekt, das nicht existiert, korrekt funktioniert
         /// </summary>
         [Test]
-        public void Remove_Fehlendes_Match_Entfernen_Match()
+        public void Remove_Fehlendes_Match()
         {
             // Nicht vorhandene Match-ID
             long randomId = 123456;

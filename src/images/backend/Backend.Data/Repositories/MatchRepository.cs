@@ -39,7 +39,20 @@ namespace Backend.Domain.Services
         /// <returns>Match, falls gefunden, sonst null</returns>
         public Match Get(long id)
         {
-            return _matches.Find<Match>(m => m.match_id == id).FirstOrDefault();
+            List<Match> foundMatches = _matches.Find<Match>(m => m.match_id == id).ToList();
+            
+            return foundMatches.FirstOrDefault();
+        }
+        
+        /// <summary>
+        /// Gibt Liste von Matches mit bestimmter ID zurueck, falls dieses existiert
+        /// Nur zu Testzwecken gedacht
+        /// </summary>
+        /// <param name="id">Match-ID des gesuchten Matchs</param>
+        /// <returns>Liste mit Matches, falls gefunden, sonst null</returns>
+        public long GetCount(long id)
+        {
+            return _matches.Find<Match>(m => m.match_id == id).CountDocuments();
         }
 
         /// <summary>

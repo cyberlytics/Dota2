@@ -19,12 +19,15 @@ namespace Backend.Test
         private OpenDotaService _openDotaService;
         private JupyterService _jupyterService;
 
-        // Sicher in den Matchverwaltungs- und -analyse-DBs hinterlegte Match-IDs
+        // Sicher in den Matchverwaltungs-DB hinterlegte Match-ID
         private readonly long matchRepoExistingId = 6049286410;
+        
+        // Sicher in der Matchanalyse-DB hinterlegte Match-ID
+        private readonly long jupyterExistingId = 6049281711;
 
         // Existierendes, nicht hinterlegtes Match
         private readonly long existingNewId = 6004345319;
-        
+
         // Nicht in den DBs hinterlegte inkorrekte ID
         private readonly long wrongId = 123456;
 
@@ -55,20 +58,18 @@ namespace Backend.Test
         }
 
         /// <summary>
-        /// Test, ob ein neu geholtes Zufallsmatch in die Matchanalyse-DB geschrieben werden kann
+        /// Test, ob ein neues Match in die Matchanalyse-DB geschrieben
+        /// und wieder geloescht werden kann
         /// </summary>
-        [Test] public async Task WriteMatchAsync_Schreiben()
+        [Test] public async Task WriteMatchAsync_Schreiben_Loeschen()
         {
-            // Neues Match von OpenDota holen
-            List<long> newMatchesIds = await _openDotaService.FetchNewMatches(1, true, true);
-            long newMatchId = newMatchesIds.First();
-
-            HttpStatusCode writeResult = await _jupyterService.WriteMatchAsync(newMatchId);
+            // Jupyter Match mit best. ID in DB schreiben lassen
+            HttpStatusCode writeResult = await _jupyterService.WriteMatchAsync(matchRepoExistingId);
 
             // Wurde Match erfolgreich gespeichert?
             Assert.That((int) writeResult == 201);
             
-            // Löschanfrage an Jupyter-Notebook-Server
+            // Loeschanfrage an Jupyter-Notebook-Server
             HttpStatusCode deleteResult = await _jupyterService.DeleteMatchAsync(matchRepoExistingId);
             
             // Wurde Match entfernt?
@@ -93,7 +94,7 @@ namespace Backend.Test
         [Test]
         public async Task WriteMatchAsync_Vorhandenes_Match_Schreiben()
         {
-            Assert.That((int)await _jupyterService.WriteMatchAsync(existingNewId) == 409);
+            Assert.That((int)await _jupyterService.WriteMatchAsync(jupyterExistingId) == 409);
         }
 
         /// <summary>
@@ -102,14 +103,14 @@ namespace Backend.Test
         [Test]
         public async Task DeleteMatchAsync_Match_Loeschen()
         {
+            // Match vorab schreiben
             await _jupyterService.WriteMatchAsync(matchRepoExistingId);
             
-            // Existierendes Match loeschen und wieder aufnehmen
+            // Existierendes Match wieder loeschen
             int resultCode = (int) await _jupyterService.DeleteMatchAsync(matchRepoExistingId);
-            Console.Write(resultCode);            
-            Assert.That(resultCode == 205);
             
-            await _jupyterService.WriteMatchAsync(matchRepoExistingId);
+            // Wurde Match erfolgreich geloescht?
+            Assert.That(resultCode == 205);
         }
         
         /// <summary>
@@ -159,26 +160,36 @@ namespace Backend.Test
         }
         
         /// <summary>
-        /// Test, ob die Vorhersage mit dem Modell "no_kda" korrekt funktioniert
+        /// Test, ob die Vorhersage mit dem Modell "no_kda" mit einem dort vorhandenen Match korrekt funktioniert
         /// </summary>
         [Test]
-        public async Task Predict_Modell_No_Kda_Vorhersagen()
+        public async Task PredictAsync_Modell_No_Kda_Vorhandenes_Match()
         {
             // Anfrage einer Vorhersageantwort
-            PredictionResultDto result = await _jupyterService.PredictAsync(matchRepoExistingId, "no_kda");
+            PredictionResultDto result;
+
+            try
+            {
+                // Versuche, Vorhersage zu erhalten
+                result = await _jupyterService.PredictAsync(jupyterExistingId, "no_kda");
             
-            // Gueltiger Score?
-            Assert.That(result.score > 0);
+                // Gueltiger Score?
+                Assert.That(result.score > 0);
+            }
+            catch (Exception e)
+            {
+                Assert.Fail();
+            }
         }
         
         /// <summary>
-        /// Test, ob die Vorhersage mit dem Modell "kda" korrekt funktioniert
+        /// Test, ob die Vorhersage mit dem Modell "kda" mit einem dort vorhandenen Match korrekt funktioniert
         /// </summary>
         [Test]
-        public async Task Predict_Modell_Kda_Vorhersagen()
+        public async Task PredictAsync_Modell_Kda_Vorhandenes_Match()
         {
             // Anfrage einer Vorhersageantwort
-            PredictionResultDto result = await _jupyterService.PredictAsync(matchRepoExistingId, "kda");
+            PredictionResultDto result = await _jupyterService.PredictAsync(jupyterExistingId, "kda");
             
             // Gueltiger Score?
             Assert.That(result.score > 0);
@@ -189,7 +200,7 @@ namespace Backend.Test
         /// korrekt reagiert wird
         /// </summary>
         [Test]
-        public async Task Predict_Modell_No_Kda_Ungueltiges_Match_Vorhersagen()
+        public async Task PredictAsync_Modell_No_Kda_Ungueltiges_Match()
         {
             Assert.That(await _jupyterService.PredictAsync(wrongId,"no_kda") == null);
         }
@@ -199,7 +210,7 @@ namespace Backend.Test
         /// korrekt reagiert wird
         /// </summary>
         [Test]
-        public async Task Predict_Modell_Kda_Ungueltiges_Match_Vorhersagen()
+        public async Task PredictAsync_Modell_Kda_Ungueltiges_Match()
         {
             Assert.That(await _jupyterService.PredictAsync(wrongId,"no_kda") == null);
         }
@@ -209,7 +220,7 @@ namespace Backend.Test
         /// korrekt reagiert wird
         /// </summary>
         [Test]
-        public async Task Predict_Modell_No_Kda_Neues_Match_Vorhersagen()
+        public async Task PredictAsync_Modell_No_Kda_Neues_Match()
         {
             // Anfrage einer Vorhersageantwort
             PredictionResultDto result;
@@ -221,6 +232,8 @@ namespace Backend.Test
             
                 // Gueltiger Score?
                 Assert.That(result.score > 0);
+
+                await _jupyterService.DeleteMatchAsync(matchRepoExistingId);
             }
             catch (Exception e)
             {
@@ -233,7 +246,7 @@ namespace Backend.Test
         /// korrekt reagiert wird
         /// </summary>
         [Test]
-        public async Task Modell_Kda_Neues_Match_Vorhersagen()
+        public async Task PredictAsync_Modell_Kda_Neues_Match()
         {
             // Anfrage einer Vorhersageantwort
             PredictionResultDto result;
@@ -245,6 +258,8 @@ namespace Backend.Test
             
                 // Gueltiger Score?
                 Assert.That(result.score > 0);
+                
+                await _jupyterService.DeleteMatchAsync(matchRepoExistingId);
             }
             catch (Exception e)
             {
@@ -257,7 +272,7 @@ namespace Backend.Test
         /// korrekt reagiert wird
         /// </summary>
         [Test]
-        public async Task Modell_Ungueltig_Vorhersagen()
+        public async Task PredictAsync_Modell_Ungueltig()
         {
             Assert.That(await _jupyterService.PredictAsync(matchRepoExistingId,"wrongmodel") == null);
         }
@@ -267,7 +282,7 @@ namespace Backend.Test
         /// korrekt reagiert wird
         /// </summary>
         [Test]
-        public async Task Modell_Ungueltig_Ungueltiges_Match_Vorhersagen()
+        public async Task PredictAsync_Modell_Ungueltig_Ungueltiges_Match()
         {
             Assert.That(await _jupyterService.PredictAsync(wrongId,"wrongmodel") == null);
         }
