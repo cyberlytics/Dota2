@@ -1,0 +1,239 @@
+version: '3.4'
+services:
+  # Mongo Datenbank Matchverwaltung
+  # 1. MongoDB, die zum ReplicaSet der Matchverwaltung gehört
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    hostname: mongodb
+    ports:
+      - "27017:27017"
+    command:
+      "--bind_ip_all --replSet rs0"
+    networks:
+      - microservice-backend
+    logging:
+      driver: none
+
+  # 2. MongoDB, die zum ReplicaSet der Matchverwaltung gehört
+  mongodb2:
+    image: mongo
+    container_name: mongodb2
+    hostname: mongodb2
+    ports:
+      - "27117:27017"
+    command:
+      "--bind_ip_all --replSet rs0"
+    networks:
+      - microservice-backend
+    logging:
+      driver: none
+
+  # 3. MongoDB, die zum ReplicaSet der Matchverwaltung gehört
+  mongodb3:
+    image: mongo
+    container_name: mongodb3
+    hostname: mongodb3
+    ports:
+      - "27217:27017"
+    command:
+      "--bind_ip_all --replSet rs0"
+    networks:
+      - microservice-backend
+    logging:
+      driver: none
+
+  # Zusammenführung der MongoDBs der Matchverwaltung in ein ReplicaSet
+  mongodb-init-replica-set:
+    image: mongo
+    depends_on:
+      - mongodb
+      - mongodb2
+      - mongodb3
+    volumes:
+      - ./deployment_scripts:/deployment_scripts
+    entrypoint:
+      - /deployment_scripts/initiate_replica.sh
+    networks:
+      - microservice-backend
+
+  # Befüllung der MongoDBs der Matchverwaltung mit initialen Daten
+  mongodb-seeder:
+    build:
+      context: ./images/mongo-seeder
+    restart: on-failure
+    depends_on:
+      - mongodb-init-replica-set
+    networks:
+      - microservice-backend
+
+  # Mongo Datenbank KI
+  # 1. MongoDB, die zum ReplicaSet der Matchanalyse gehört
+  mongodb-ki:
+    image: mongo
+    container_name: mongodb-ki
+    hostname: mongodb-ki
+    ports:
+      - "27018:27017"
+    command:
+      "--bind_ip_all --replSet rs0-ki"
+    networks:
+      - microservice-ki
+    logging:
+      driver: none  
+
+  # 2. MongoDB, die zum ReplicaSet der Matchanalyse gehört
+  mongodb-ki2:
+    image: mongo
+    container_name: mongodb-ki2
+    hostname: mongodb-ki2
+    ports:
+      - "27118:27017"
+    command:
+      "--bind_ip_all --replSet rs0-ki"
+    networks:
+      - microservice-ki
+    logging:
+      driver: none  
+
+  # 3. MongoDB, die zum ReplicaSet der Matchanalyse gehört
+  mongodb-ki3:
+    image: mongo
+    container_name: mongodb-ki3
+    hostname: mongodb-ki3
+    ports:
+      - "27218:27017"
+    command:
+      "--bind_ip_all --replSet rs0-ki"
+    networks:
+      - microservice-ki
+    logging:
+      driver: none  
+
+  # Zusammenführung der MongoDBs der Matchanalyse in ein ReplicaSet      
+  mongodb-init-replica-set-ki:
+    image: mongo
+    depends_on:
+      - mongodb-ki
+      - mongodb-ki2
+      - mongodb-ki3
+    volumes:
+      - ./deployment_scripts:/deployment_scripts
+    entrypoint:
+      - /deployment_scripts/initiate_replica_ki.sh
+    networks:
+      - microservice-ki
+
+  # Befüllung der MongoDBs der Matchanalyse mit initialen Daten
+  mongodb-seeder-ki:
+    build:
+      context: ./images/mongo-seeder-ki
+    restart: on-failure
+    depends_on:
+      - mongodb-init-replica-set-ki
+    networks:
+      - microservice-ki
+
+  # Starten eines Jupyter-Notebooks-Servers, damit die Notebooks innerhalb
+  # einer Weboberfläche bearbeitet werden können.
+  # Matchanalyse
+  jupyter-notebooks:   
+    # Notebooks
+    build: './images/jupyter-notebooks/'
+    volumes:
+      - ./images/jupyter-notebooks/:/home/bdcc/
+    working_dir: /home/bdcc/
+    command:
+      jupyter
+      notebook
+      --ip=0.0.0.0
+      --NotebookApp.token=''
+      --allow-root
+    environment:
+      - MONGODB_HOST=mongodb-ki
+      - MONGODB_PORT=27017
+    ports:
+      - "8888:8888"
+    networks:
+      - microservice-ki
+    depends_on:
+      - mongodb-ki
+      - mongodb-seeder-ki
+
+  # Starten eines Jupyter-Gateway-Servers, damit dieser mit angegebenen
+  # einer REST-Schnittstelle angesprochen werden kann.
+  # Matchanalyse
+  jupyter-server:   
+    # API
+    build: './images/jupyter-notebooks/'
+    volumes:
+      - ./images/jupyter-notebooks/:/home/bdcc/
+    working_dir: /home/bdcc/notebooks/api
+    command:
+      jupyter
+      kernelgateway
+      --ip=0.0.0.0
+      --KernelGatewayApp.seed_uri=/home/bdcc/notebooks/api/interface.ipynb
+      --KernelGatewayApp.api='kernel_gateway.notebook_http'
+      --KernelGatewayApp.port=8898
+      --KernelGatewayApp.allow_origin='*'
+    environment:
+      - MONGODB_HOST=mongodb-ki
+      - MONGODB_PORT=27017
+    ports:
+      - "8898:8898"
+    networks:
+      - microservice-ki
+    depends_on:
+      - jupyter-notebooks
+      - mongodb-ki
+      - mongodb-seeder-ki
+
+  # Matchverwaltung (.NET Core)
+  csharp-backend:   
+    build:
+      context: './images/backend/'
+      dockerfile: 'Backend.API/Dockerfile'
+    ports:
+      - "80:80"
+      - "44357:44357"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - MONGODB_CONNECTION_STRING=mongodb://mongodb:27017
+      - JUPYTER_SERVER=http://jupyter-server:8898
+    networks:
+      - microservice-backend
+      - microservice-ki
+    depends_on:
+      - mongodb
+      - mongodb-seeder
+
+  # Frontend (React.js)
+  node:
+    build: './images/frontend/'
+    volumes:
+      - ./images/frontend/:/home/app/
+      - /home/app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - BACKEND_SERVER=csharp-backend
+    depends_on:
+      - csharp-backend
+    ports:
+      - "3000:3000"
+
+# Konfiguration der virtuellen Netzwerke
+networks:
+  microservice-backend:
+    name: backend
+    driver: bridge # Bridge ist Docker-Default.
+    # internal: true # Wenn internal auf true gesetzt wird, ist das Netzwerk nicht mehr standardmäßig vom Host aufrufbar. Während Development noch hinderlich.
+  microservice-ki:
+    name: ki
+    driver: bridge
+    # internal: true # Wenn internal auf true gesetzt wird, ist das Netzwerk nicht mehr standardmäßig vom Host aufrufbar. Während Development noch hinderlich.
+  frontend: # Das Frontend könnte mit diesem Netzwerk erweitert werden, wird aber noch nicht verwendet.
+    name: frontend
+    driver: bridge
+  
